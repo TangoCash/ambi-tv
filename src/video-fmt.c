@@ -50,6 +50,9 @@ enum ambitv_video_format v4l2_to_ambitv_video_format(uint32_t fourcc)
 	case V4L2_PIX_FMT_YUYV:
 		fmt = ambitv_video_format_yuyv;
 		break;
+	case V4L2_PIX_FMT_UYVY:
+		fmt = ambitv_video_format_uyvy;
+		break;
 	default:
 		break;
 	}
