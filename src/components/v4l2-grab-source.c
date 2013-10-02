@@ -391,6 +391,16 @@ static int ambitv_v4l2_grab_read_frame(struct v4l2_grab* grabber)
 		break;
 	}
 
+	case ambitv_video_format_uyvy:
+	{
+		int cx = (grabber->crop[3] & ~1) + auto_crop[3], cy = grabber->crop[0] + auto_crop[0];
+         
+		ebpl     = grabber->bytesperline ? grabber->bytesperline : 2*grabber->width;
+		eframe   = buffers[buf.index].start + cy * ebpl + cx * 2;
+		ewidth   = grabber->width - grabber->crop[1] - grabber->crop[3] - auto_crop[1] - auto_crop[3];
+		eheight  = grabber->height - grabber->crop[0] - grabber->crop[2] - auto_crop[0] - auto_crop[2];
+		break;
+	}
 	default:
 	{
 		eframe = NULL;
