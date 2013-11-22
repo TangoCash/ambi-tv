@@ -34,6 +34,7 @@
 #include "components/edge-color-processor.h"
 #include "components/audio-processor.h"
 #include "components/mood-light-processor.h"
+#include "components/uart-sink.h"
 #include "components/ledstripe-sink.h"
 #include "components/web-processor.h"
 
@@ -82,6 +83,11 @@ static struct ambitv_component_registration registrations[] = {
       .constructor      = (void* (*)(const char*, int, char**))ambitv_web_processor_create
    },
 
+   {
+       .name            = "uart-sink",
+       .constructor     = (void* (*)(const char*, int, char**))ambitv_uart_create
+   },
+   
    { NULL, NULL }
 };
 
