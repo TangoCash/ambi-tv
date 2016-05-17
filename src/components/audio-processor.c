@@ -402,7 +402,10 @@ static int ambitv_audio_processor_update_sink(struct ambitv_processor_component*
 			case ATYPE_LMETER:
 				if ((int) level > ii)
 				{
-					sink->f_set_output_to_rgb(sink, i, audio->lcolor.r, audio->lcolor.g, audio->lcolor.b);
+					if ((int) level > 2*MSIZE)
+					sink->f_set_output_to_rgb(sink, i, 255, 0, 0);
+					else
+					sink->f_set_output_to_rgb(sink, i, 0, 255, 0);
 				}
 				else
 				{
