@@ -19,6 +19,7 @@ Mit einem lauffähig zu kaufenden Raspberry Pi ist es sehr leicht, ein eigenständ
 - Programme und Parameter können über Netzwerk kontrolliert werden, der Taster ist im Prinzip überflüssig
 - die 3D-Modi Side-by-Side (SBS) und Top-over-Bottom (TOB) können für eine richtig skalierte LED-Ansteuerung aktiviert werden
 - neben dem Chiptyp LPD8806 auf dem LED-Stripe werden nun auch die Chiptypen WS280x, WS281x, SK6812 und APA10x unterstützt
+- neue DMA lib, damit alle Generationen des Raspi unterstützt werden.
 - die Randerkennung wurde überarbeitet um nicht durch Senderlogos oder Artefakte an den Seitenrändern gestört zu werden
 
 ## Verwendete GIT-Projekte
@@ -29,7 +30,7 @@ Neben dem Grundgerüst von Georg Kaindl wurde auch auf die Vorabeiten von [Karl S
 
 Für den Aufbau des eigenständigen Ambilights werden folgende Komponenten benötigt:
 
-- Raspberry Pi (Version A, B oder B+ mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
+- Raspberry Pi (mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
 - [HDMI-Splitter](http://www.amazon.de/gp/product/B0081FDFMQ): Dieser Splitter unterstützt auch BD-3D und CEC.
 - [HDMI / Composite Umsetzer](http://www.amazon.de/gp/product/B00AASZU8E): erzeugt auch das Audio-Signal für den Spektrum-Analyzer.
 - [LPD8806 RGB LED Strip](http://www.watterott.com/de/Digital-Addressable-RGB-LED): Die benötigte Länge hängt von der Bildschirmdiagonale ab.
@@ -78,8 +79,8 @@ Die Gerätenummer "0" und Subgerätenummer "0" merken wir uns.
 
 Wird ein LPD88x6-LED-Streifen verwendet, muß sichergestellt werden, daß der SPI-Treiber geladen wird. Das läßt sich am einfachsten über "raspi-config" einstellen oder über den manuellen Eintrag des Moduls `'spi-bcm2708'` in der modules-Datei.
 
-Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/xSnowHeadx/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make'`. Die ausführbare Datei finden wir nun im Verzeichnis "bin".
-Soll ambi-tv automatisch beim Start des Raspberry ausgeführt werden, muß als root in die Datei "/etc/rc.local" folgende Zeile vor "exit 0" eingefügt werden: `'sudo /home/pi/ambi-tv/bin/ambi-tv -f /home/pi/ambi-tv/ambi-tv.conf &'`.  (Das "&" am Zeilenende ist wichtig sonst bleibt der Raspberry beim Booten hängen!)
+Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/TangoCash/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make'`.
+Zum installieren incl. Autostart : `'sudo make install'`
 
 Folgende Parameter akzeptiert ambi-tv beim Start:
 
@@ -248,3 +249,4 @@ Nicht vergessen: statt "color" die Farben "red", "green" oder "blue" einsetzen.
 ## Tools
 
 Für Linux-Receiver mit Neutrino und installierten Plugins FlexMenü, Input und MessageBox liegt in "tools/" das Script "ambi-tv-config", mit welchem man ambi-tv vom Receiver aus menügesteuert kontrollieren und parametrieren kann. Einige Screenshots der Menüs, welche einige Möglichkeiten der Steuerung demonstrieren sind [hier](doc/ambi-config.jpg) zusammengestellt. 
+Im selben Verzeichniss findet man auch das LUA Plugin zu Steuerung.(Danke an Tischi)
