@@ -26,6 +26,7 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
 #ifndef __GPIO_H__
 #define __GPIO_H__
 
@@ -59,10 +60,10 @@ typedef struct
     uint32_t pudclk[2];                          // GPIO Pin Pull up/down Enable Clock
     uint32_t resvd_0xa0[4];
     uint32_t test;
-} __attribute__((packed)) gpio_t;
+} __attribute__((packed, aligned(4))) gpio_t;
 
 
-#define GPIO                                     (0x20200000)  // 0x7e200000
+#define GPIO_OFFSET                              (0x00200000)
 
 
 static inline void gpio_function_set(volatile gpio_t *gpio, uint8_t pin, uint8_t function)

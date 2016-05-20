@@ -50,7 +50,9 @@
  *
  */
 
+
 #define RPI_PWM_CHANNELS                         2
+
 
 typedef struct {
 	uint32_t ctl;
@@ -94,10 +96,11 @@ typedef struct {
 	uint32_t resvd_0x1c;
 	uint32_t rng2;
 	uint32_t dat2;
-}__attribute__((packed)) pwm_t;
+} __attribute__((packed, aligned(4))) pwm_t;
 
-#define PWM                                      (0x2020c000)  // 0x7e20c000
-#define PWM_PERIPH                               (0x7e20c000)
+#define PWM_OFFSET                               (0x0020c000)
+#define PWM_PERIPH_PHYS                          (0x7e20c000)
+
 
 typedef struct {
 	int pinnum;
@@ -109,6 +112,8 @@ typedef struct {
 	const pwm_pin_table_t *pins;
 } pwm_pin_tables_t;
 
+
 int pwm_pin_alt(int chan, int pinnum);
+
 
 #endif /* __PWM_H__ */
