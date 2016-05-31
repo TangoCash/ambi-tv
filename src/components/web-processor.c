@@ -43,7 +43,7 @@ struct ambitv_web_processor_priv
 static int
 ambitv_web_processor_handle_frame(
     struct ambitv_processor_component* component,
-    void*,
+    void* nothing,
     int change,
     int r,
     int g,
