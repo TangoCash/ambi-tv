@@ -102,6 +102,10 @@ struct ambitv_audio_processor_priv
 	{
 		int r, g, b;
 	} lcolor;
+	struct
+	{
+		int r, g, b;
+	} pcolor;
 	unsigned int rate;
 };
 
@@ -406,9 +410,9 @@ static int ambitv_audio_processor_update_sink(struct ambitv_processor_component*
 				if ((int) level > ii)
 				{
 					if ((int) level > 2*MSIZE)
-					sink->f_set_output_to_rgb(sink, i, 255, 0, 0);
+					sink->f_set_output_to_rgb(sink, i, audio->pcolor.r, audio->pcolor.g, audio->pcolor.b);
 					else
-					sink->f_set_output_to_rgb(sink, i, 0, 255, 0);
+					sink->f_set_output_to_rgb(sink, i, audio->lcolor.r, audio->lcolor.g, audio->lcolor.b);
 				}
 				else
 				{
@@ -462,7 +466,7 @@ static int ambitv_audio_processor_update_sink(struct ambitv_processor_component*
 
 static int ambitv_audio_processor_configure(struct ambitv_audio_processor_priv* audio, int argc, char** argv)
 {
-	int c, ret = 0;
+	int c, ret = 0, pcolor = 0;
 
 	static struct option lopts[] =
 	{
@@ -471,6 +475,7 @@ static int ambitv_audio_processor_configure(struct ambitv_audio_processor_priv* 
 	{ "smoothing", required_argument, 0, 'S' },
 	{ "linear", required_argument, 0, 'e' },
 	{ "levelcolor", required_argument, 0, 'l' },
+	{ "peakcolor", required_argument, 0, 'p' },
 	{ NULL, 0, 0, 0 } };
 
 	optind = 0;
@@ -591,6 +596,26 @@ static int ambitv_audio_processor_configure(struct ambitv_audio_processor_priv* 
 
 				break;
 			}
+			case 'p':
+			{
+				if (NULL != optarg)
+				{
+					if ((sscanf(optarg, "%2X%2X%2X", &audio->pcolor.r, &audio->pcolor.g, &audio->pcolor.b) == 3))
+					{
+						pcolor = 1;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error,
+						LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+						ret = -1;
+						goto errReturn;
+					}
+
+				}
+
+				break;
+			}
 		}
 
 		default:
@@ -602,6 +627,13 @@ static int ambitv_audio_processor_configure(struct ambitv_audio_processor_priv* 
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "extraneous argument '%s'.\n", argv[optind]);
 		ret = -1;
+	}
+
+	if (pcolor == 0)
+	{
+		audio->pcolor.r = audio->lcolor.r;
+		audio->pcolor.g = audio->lcolor.g;
+		audio->pcolor.b = audio->lcolor.b;
 	}
 
 	errReturn: return ret;
