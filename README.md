@@ -167,6 +167,10 @@ Im Moment unterstützt ambi-tv folgende Komponententypen mit ihren Einstellungen:
 - `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
 - `speed`: Schrittweite, mit welcher der Farbraum durchgeschoben wird. In Verbindung mit dem "millis"-Parameter der Timerquelle ergibt sich so die Geschwindigkeit der Farbänderung.
 
+**web-light-processor**: Erzeugt auch ohne Eingangsdaten ein einfarbiges Licht, indem er alle LEDs in der angegeben Farbe leuchten lässt.
+
+- `color`: Bestimmt die Start-Farbe des Leuchtbalkens im hexadezimalen Format RRGGBB (FF0000 ist rot, 00FF00 grün, FFFF00 gelb usw.).
+
 **audio-processor**: Verarbeitet die erfaßten Audio-Daten mittels FFT und wandelt sie in Farben um.
 
 - `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
@@ -245,6 +249,8 @@ Nicht vergessen: statt "color" die Farben "red", "green" oder "blue" einsetzen.
 *Linear-Modus setzen (0, 1):*  
 `http://raspi:port?linear=n`
 
+*Webcolor setzen (hexadezimal):*  
+`http://raspi:port?rgb=RRGGBB`
 
 ## Tools
 
