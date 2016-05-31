@@ -210,6 +210,7 @@ static int ambitv_runloop()
 		else
 		{
 			char *valpos = strchr(buffer, '=');
+			char newrgb[6];
 			int getval, readval = 0, done = 0;
 			double newval;
 
@@ -220,6 +221,7 @@ static int ambitv_runloop()
 				{
 					readval = 1;
 					sscanf(valpos, "%lf", &newval);
+					sscanf(valpos, "%s", newrgb);
 				}
 				scomponent = (struct ambitv_sink_component*) ambitv_component_find_in_group("led-", 1);
 				if (scomponent == NULL)
@@ -384,6 +386,33 @@ static int ambitv_runloop()
 						}
 					}
 				}
+				if (!done)
+				{
+					pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("web", 1);
+					if (pcomponent == NULL)
+						pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("web", 0);
+					if (pcomponent != NULL)
+					{
+						if ((done = ((bufferptr = strstr(buffer, "rgb=")) != NULL)) != 0)
+						{
+							if (readval)
+							{
+								int r,g,b;
+								if ((sscanf(newrgb, "%2X%2X%2X", &r, &g, &b) == 3))
+								{
+									ret = pcomponent->f_consume_frame(pcomponent, NULL, 1, r, g, b);
+								}
+							}
+							else
+							{
+								getval = pcomponent->f_consume_frame(pcomponent, NULL, 0, 0, 0, 0);
+								sprintf(buffer, "%02X%02X%02X", (getval >> 16 & 0xff), (getval >> 8 & 0xff), (getval & 0xff));
+								ret = 1;
+							}
+						}
+					}
+				}
+
 			}
 		}
 		if (newsockfd > -1)

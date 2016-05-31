@@ -35,7 +35,8 @@ SRC_AMBITV = src/main.c src/video-fmt.c src/parse-conf.c src/component.c   	\
 	src/components/timer-source.c      										\
 	src/components/edge-color-processor.c                                   \
 	src/components/audio-processor.c                                   		\
-	src/components/mood-light-processor.c									
+	src/components/mood-light-processor.c                              		\
+	src/components/web-processor.c
 	  
 OBJ_AMBITV = $(SRC_AMBITV:.c=.o)
 

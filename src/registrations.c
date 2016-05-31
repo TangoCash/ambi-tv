@@ -35,6 +35,7 @@
 #include "components/audio-processor.h"
 #include "components/mood-light-processor.h"
 #include "components/ledstripe-sink.h"
+#include "components/web-processor.h"
 
 #define LOGNAME      "registration: "
 
@@ -75,6 +76,10 @@ static struct ambitv_component_registration registrations[] = {
    {
       .name             = "ledstripe-sink",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_ledstripe_create
+   },
+  {
+      .name             = "web-processor",
+      .constructor      = (void* (*)(const char*, int, char**))ambitv_web_processor_create
    },
 
    { NULL, NULL }
