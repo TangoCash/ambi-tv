@@ -168,7 +168,8 @@ Im Moment unterstützt ambi-tv folgende Komponententypen mit ihren Einstellungen:
 - `speed`: Schrittweite, mit welcher der Farbraum durchgeschoben wird. In Verbindung mit dem "millis"-Parameter der Timerquelle ergibt sich so die Geschwindigkeit der Farbänderung.
 - `mode`: Legt die Art der Farbdarstellung fest
   * `0` bedeutet es wird ein diagonal über die Ecken verlaufendes Farbband angezeigt
-  * `1` bedeutet der ganze LED-Streifen wird in einer Farbe dargestellt, welche langsam das gesamte Spektrum durchläuft
+  * `1` bedeutet es wird ein den ganzen Bildschirm umlaufendes Farbband angezeigt
+  * `2` bedeutet der ganze LED-Streifen wird in einer Farbe dargestellt, welche langsam das gesamte Spektrum durchläuft
 
 **audio-processor**: Verarbeitet die erfaßten Audio-Daten mittels FFT und wandelt sie in Farben um.
 

@@ -86,13 +86,40 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 		{
 			for (i = 0; i < n_out; i++)
 			{
+				int x, y, r, g, b;
+				float f;
+
+				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
+				if(y < 0.0001)
+					f = CONSTRAIN(x / 5000.0, 0.0, 1.0);
+				else if(x > 1599.9999)
+					f = CONSTRAIN((1600.0 + y) / 5000.0, 0.0, 1.0);
+				else if(y > 899.9999)
+					f = CONSTRAIN((4100.0 - x) / 5000.0, 0.0, 1.0);
+				else //(x < 0.0001)
+					f = CONSTRAIN((5000.0 - y) / 5000.0, 0.0, 1.0);
+
+				f = fmod(f + mood->offset, 1.0);
+
+				ambitv_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
+
+				sink->f_set_output_to_rgb(sink, i, r, g, b);
+			}
+		}
+		break;
+
+		case 2:
+		{
+			for (i = 0; i < n_out; i++)
+			{
 				int r, g, b;
 				ambitv_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
 				sink->f_set_output_to_rgb(sink, i, r, g, b);
 			}
 		}
 		break;
-		}
+
+}
 	}
 	else
 		ret = -1;
