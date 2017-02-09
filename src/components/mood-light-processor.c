@@ -59,6 +59,9 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 
 	if (sink->f_num_outputs && sink->f_map_output_to_point && sink->f_set_output_to_rgb)
 	{
+		int x, y, r, g, b;
+		float f;
+
 		n_out = sink->f_num_outputs(sink);
 
 		switch(mood->mode)
@@ -67,12 +70,9 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 		{
 			for (i = 0; i < n_out; i++)
 			{
-				int x, y, r, g, b;
-				float f;
+				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
 
-				ret = sink->f_map_output_to_point(sink, i, 1024, 1024, &x, &y);
-
-				f = CONSTRAIN((x / 1024.0 + y / 1024.0) / 2.0, 0.0, 1.0);
+				f = CONSTRAIN((x + y) / 2500.0, 0.0, 1.0);
 				f = fmod(f + mood->offset, 1.0);
 
 				ambitv_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
@@ -86,9 +86,6 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 		{
 			for (i = 0; i < n_out; i++)
 			{
-				int x, y, r, g, b;
-				float f;
-
 				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
 				if(y < 0.0001)
 					f = CONSTRAIN(x / 5000.0, 0.0, 1.0);
@@ -96,7 +93,7 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 					f = CONSTRAIN((1600.0 + y) / 5000.0, 0.0, 1.0);
 				else if(y > 899.9999)
 					f = CONSTRAIN((4100.0 - x) / 5000.0, 0.0, 1.0);
-				else //(x < 0.0001)
+				else
 					f = CONSTRAIN((5000.0 - y) / 5000.0, 0.0, 1.0);
 
 				f = fmod(f + mood->offset, 1.0);
@@ -110,10 +107,9 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 
 		case 2:
 		{
+			ambitv_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
 			for (i = 0; i < n_out; i++)
 			{
-				int r, g, b;
-				ambitv_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
 				sink->f_set_output_to_rgb(sink, i, r, g, b);
 			}
 		}
