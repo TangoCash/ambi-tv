@@ -48,13 +48,13 @@ Hardwareaufbau:
 
 - Zur Übersicht noch einmal die Auflistung der vorhandenen Signale:
 
-    Raspberry Pi          Signal
-    ---------------------------------
-    P1/19 (MOSI)          LPD880x DATA
-    P1/23 (SCLK)          LPD880x CLOCK
-    P1/12 (PWM)           WS28xx DATA
-    P1/5                  Taster Pin A
-    P1/6                  Taster Pin B
+	Raspberry Pi		Signal
+	---------------------------------
+	P1/19 (MOSI)		LPD880x DATA
+	P1/23 (SCLK)		LPD880x CLOCK
+	P1/12 (PWM)			WS28xx DATA
+	P1/5				Taster Pin A
+	P1/6				Taster Pin B
     
 Hier die Pinbelegung des Raspberry:
 
