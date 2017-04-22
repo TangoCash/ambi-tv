@@ -56,8 +56,8 @@ clean:
 	rm -rf bin
 
 install: $(AMBITV)
-	install -d $(BINDIR)
-	install -m 755 -o root -g root bin/$(AMBITV) $(BINDIR)
-	install -m 755 -o root -g root $(AMBITV).init.sh $(ETCDIR)/init.d/$(AMBITV)
-	install -m 644 -o root -g root $(AMBITV).conf $(ETCDIR)/$(AMBITV).conf
-	update-rc.d $(AMBITV) defaults
+	sudo install -d $(BINDIR)
+	sudo install -m 755 -o root -g root bin/$(AMBITV) $(BINDIR)
+	sudo install -m 755 -o root -g root $(AMBITV).init.sh $(ETCDIR)/init.d/$(AMBITV)
+	sudo install -m 644 -o root -g root $(AMBITV).conf $(ETCDIR)/$(AMBITV).conf
+	sudo update-rc.d $(AMBITV) defaults

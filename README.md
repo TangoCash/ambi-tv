@@ -2,7 +2,7 @@
 
 Eine Weiterentwicklung von gkaindl's Framework für ein Ambilight mit einem Embedded-Linux-System (z.B. Raspberry), einem USB-Framegrabber und adressierbaren RGB-LED-Stripes
 
-Hier ist eine [Video-Demonstration](https://www.youtube.com/watch?v=gjBJl8lVzbc) des Standard-Modus. Ein Beispiel für die zusätzliche Audio-Funktion findet Ihr [hier](http://www.youtube.com/watch?v=E6IvAzZ8_ws).
+Hier ist eine [Video-Demonstration](https://www.youtube.com/watch?v=gjBJl8lVzbc) des Standard-Modus. Ein Beispiel für die zusätzliche Audio-Funktion findet Ihr [hier](https://youtu.be/Ifz-ns2uNhg).
 
 ambi-tv basiert auf der Idee, einen HDMI-Splitter und einen HDMI-zu-CVBS-Umsetzer für das parallele Erfassen des angezeigten Bildes und dessen Darstellung auf einem LED-Stripe zu verwenden. Das funktioniert mit jeder HDMI-Quelle ohne die Notwendigkeit, einen zusätzlichen Computer zu verwenden. 
 
@@ -21,6 +21,7 @@ Mit einem lauffähig zu kaufenden Raspberry Pi ist es sehr leicht, ein eigenständ
 - neben dem Chiptyp LPD8806 auf dem LED-Stripe werden nun auch die Chiptypen WS280x, WS281x, SK6812 und APA10x unterstützt
 - neue DMA lib, damit alle Generationen des Raspi unterstützt werden.
 - die Randerkennung wurde überarbeitet um nicht durch Senderlogos oder Artefakte an den Seitenrändern gestört zu werden
+- es kann eine Minimalhelligkeit der LED festgelegt werden, um das Ambilight auch als einzige Raumbeleuchtung verwenden zu können
 
 ## Verwendete GIT-Projekte
 
@@ -30,7 +31,7 @@ Neben dem Grundgerüst von Georg Kaindl wurde auch auf die Vorabeiten von [Karl S
 
 Für den Aufbau des eigenständigen Ambilights werden folgende Komponenten benötigt:
 
-- Raspberry Pi (mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
+- Raspberry Pi (beliebige Version mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
 - [HDMI-Splitter](http://www.amazon.de/gp/product/B0081FDFMQ): Dieser Splitter unterstützt auch BD-3D und CEC.
 - [HDMI / Composite Umsetzer](http://www.amazon.de/gp/product/B00AASZU8E): erzeugt auch das Audio-Signal für den Spektrum-Analyzer.
 - [LPD8806 RGB LED Strip](http://www.watterott.com/de/Digital-Addressable-RGB-LED): Die benötigte Länge hängt von der Bildschirmdiagonale ab.
@@ -48,13 +49,13 @@ Hardwareaufbau:
 
 - Zur Übersicht noch einmal die Auflistung der vorhandenen Signale:
 
-    Raspberry Pi          Signal
-    ---------------------------------
-    P1/19 (MOSI)          LPD880x DATA
-    P1/23 (SCLK)          LPD880x CLOCK
-    P1/12 (PWM)           WS28xx DATA
-    P1/5                  Taster Pin A
-    P1/6                  Taster Pin B
+	Raspberry Pi		Signal
+	---------------------------------
+	P1/19 (MOSI)		LPD880x DATA
+	P1/23 (SCLK)		LPD880x CLOCK
+	P1/12 (PWM)			WS28xx DATA
+	P1/5				Taster Pin A
+	P1/6				Taster Pin B
     
 Hier die Pinbelegung des Raspberry:
 
@@ -67,7 +68,7 @@ Leider kann der Umsetzer nur Stereo-PCM-Signale in ein für den Audio-Grabber ver
 
 ## Software Installation
 
-Bevor ambi-tv verwendet werden kann, werden für den Audio-Spektrum-Analyzer noch einige Bibliotheken und Tools benötigt. Diese kann man sich durch Eingabe von `'sudo apt-get install libfftw3-dev libasound2-dev alsa-utils'` installieren.  
+Bevor ambi-tv verwendet werden kann, werden für den Audio-Spektrum-Analyzer noch einige Bibliotheken und Tools benötigt. Diese kann man sich durch Eingabe von `'sudo apt-get install git libfftw3-dev libasound2-dev alsa-utils'` installieren.  
 Um zu prüfen, ob nach dem Anstecken des USB-Grabbers alle Treiber geladen worden sind, schaut man mit `'ls /dev | grep video'` ob das Gerät "video0" vorhanden ist. Ob der Audiograbber-Treiber geladen wurde, sieht man mit `'arecord -l'`. Hier sollte der usbtv-Treiber angezeigt werden:
 
     Liste der Hardware-Geräte (CAPTURE)
@@ -75,12 +76,12 @@ Um zu prüfen, ob nach dem Anstecken des USB-Grabbers alle Treiber geladen worden
     	Sub-Geräte: 1/1
     	Sub-Gerät #0: subdevice #0
    
-Die Gerätenummer "0" und Subgerätenummer "0" merken wir uns.
+Die Kartenummer "0" und Subgerätenummer "0" merken wir uns.
 
-Wird ein LPD88x6-LED-Streifen verwendet, muß sichergestellt werden, daß der SPI-Treiber geladen wird. Das läßt sich am einfachsten über "raspi-config" einstellen oder über den manuellen Eintrag des Moduls `'spi-bcm2708'` in der modules-Datei.
+Wird ein SPI-LED-Streifen verwendet, muß sichergestellt werden, daß der SPI-Treiber geladen wird. Das läßt sich am einfachsten über "raspi-config" einstellen.
 
-Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/TangoCash/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make'`.
-Zum installieren incl. Autostart : `'sudo make install'`
+Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/TangoCash/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make'`. Die ausführbare Datei finden wir nun im Verzeichnis "bin".
+Zum Installieren mit Autostart führt man `'sudo make install'` aus. Nun wird ambi-tv bei jedem Start des Raspberry automatisch mit gestartet. 
 
 Folgende Parameter akzeptiert ambi-tv beim Start:
 
@@ -166,6 +167,10 @@ Im Moment unterstützt ambi-tv folgende Komponententypen mit ihren Einstellungen:
 
 - `name`: Der Instanzenname des Prozessors, unter welchem er mit den eingestellten Parametern in den Programmen verwendet werden kann.  
 - `speed`: Schrittweite, mit welcher der Farbraum durchgeschoben wird. In Verbindung mit dem "millis"-Parameter der Timerquelle ergibt sich so die Geschwindigkeit der Farbänderung.
+- `mode`: Legt die Art der Farbdarstellung fest
+  * `0` bedeutet es wird ein diagonal über die Ecken verlaufendes Farbband angezeigt
+  * `1` bedeutet es wird ein den ganzen Bildschirm umlaufendes Farbband angezeigt
+  * `2` bedeutet der ganze LED-Streifen wird in einer Farbe dargestellt, welche langsam das gesamte Spektrum durchläuft
 
 **web-light-processor**: Erzeugt auch ohne Eingangsdaten ein einfarbiges Licht, indem er alle LEDs in der angegeben Farbe leuchten lässt.
 
@@ -194,8 +199,8 @@ Es können mehrere Filter gleichzeitig aktiviert werden indem deren Zahlen addier
 - `led-device`: Das verwendete Device. Für LPD880x, APA10x bzw. WS280x z.B. `/dev/spidev0.0`. Für einen SK6812- oder WS281x-Stripe z.B. `DMA5` für den DMA-Kanal 5
 - `dev-speed-hz`: Die Taktfrequenz für die Datenausgabe. Für LDP880x, APA10x  bzw. Ws280x z.B. `2500000` (2.5MHz). Für einen SK6812- bzw. WS281x-Stripe sind entweder `400000` oder `800000` möglich, abhängig von der Beschaltung der Chips durch den Stripe-Hersteller .
 - `dev-type`: Der angeschlossene LED-Stripe. Gültige Werte sind `LPD880x`, `WS280x`, `APA10x`, `WS281x` und `SK6812`
-- `dev-pin`: Nur für WS281x. Der GPIO-Pin, an welchem die Daten ausgegeben werden sollen. Standard ist `18`.
-- `dev-inverse`: Nur für WS281x. Gibt an, ob der Pegelwandler das Ausgangssignal invertiert (`1`) oder nicht (`0`).
+- `dev-pin`: Nur für WS281x und SK6812. Der GPIO-Pin, an welchem die Daten ausgegeben werden sollen. Standard ist `18`.
+- `dev-inverse`: Nur für WS281x und SK6812. Gibt an, ob der Pegelwandler das Ausgangssignal invertiert (`1`) oder nicht (`0`).
 - `dev-color-order`: Gibt an, in welcher Reihenfolge  die Bytes der einzelnen Farben an die LED gesendet werden müssen. "RGB" bedeutet, daß zunächst das Byte für Rot, dann für Grün und zuletzt für Blau gesendet wird. Dieser Parameter ist optional und wird normalerweise automatisch passend zum ausgewählten LED-Typ gesetzt.
 - `leds-top`, `leds-left`, `leds-bottom`, `leds-right`: Beschreibt die LED-Positionen auf den Bildschirmseiten. Die Adressierung der LED beginnt bei 0. Die Adresse einer LED ist also deren Position auf dem Stripe minus 1. Es können sowohl einzelne Indices getrennt mit "," oder auch Bereiche verbunden mit "-" eingetragen werden. Fehlende LED werden mit einem "X" gekennzeichnet. Beispielsweise bedeutet "33-56" "LEDs 34 bis 57", "22-5" bedeutet "LEDs 23 bis 6 absteigend", und "13-0,4X,97-84" bedeutet "LEDs 14 bis 1, dann ein unbelegter Bereich in der Breite von 4 LED und anschließend noch die LEDs 98 bis 85". Die "X" sind vor allem im Bereich des Fernseherfußes oder der Einspeisung sinnvoll um die Positionsberechnung nicht durcheinanderzubringen. Die Aufzählung der LEDs geschieht generell von links nach rechts für die obere und untere Kante und von oben nach unten für die Seitenkanten.
 - `led-inset-top`, `led-inset-bottom`, `led-inset-left`, `led-inset-right`: Da die Stripes aufgrund ihrer Struktur nicht an beliebigen Stellen getrennt werden können, kann es an den Ecken vorkommen, daß die Streifen entweder länger oder kürzer als die eigentlichen Bildschirmabmessungen sind. Das kann mit diesen Prozentwerten einkalkuliert werden. So bedeutet z.B. ein Wert von '3.5' daß der Stripe an dieser Kante um 3,5% des Bildbereiches kürzer ist als der Bildbereich, ein Wert von "-1.2" bedeutet einen 1,2% längeren Streifen an dieser Kante.
@@ -205,6 +210,9 @@ Es können mehrere Filter gleichzeitig aktiviert werden indem deren Zahlen addier
 - `intensity-red`: Legt die Einzelhelligkeit der roten LEDs in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
 - `intensity-green`: Legt die Einzelhelligkeit der grünen LEDs in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
 - `intensity-blue`: Legt die Einzelhelligkeit der blauen LEDs in Prozent der Gesamthelligkeit fest. Gültig sind Werte von 0..100.  
+- `intensity-min-red`: Legt die Minimalhelligkeit der roten LEDs in Prozent der vollen Helligkeit fest. Gültig sind Werte von 0..100.  
+- `intensity-min-green`: Legt die Minimalhelligkeit der grünen LEDs in Prozent der vollen Helligkeit fest. Gültig sind Werte von 0..100.  
+- `intensity-min-blue`: Legt die Minimalhelligkeit der blauen LEDs in Prozent der vollen Helligkeit fest. Gültig sind Werte von 0..100.  
 
 ## ambi-tv erweitern
 
@@ -216,7 +224,7 @@ Neu geschriebene Komponenten müssen in `registrations.c` durch Hinzufügen zu Lis
 
 ## Web-Interface
 
-Die Steuerung von ambi-tv über Webinterface funktioniert von jedem beliebigen Gerät mit Web-Client (Browser, wget, curl o.Ä.) aus. Hier eine Beschreibung der Befehle und Parameter für das Webinterface (statt "raspi" die IP des Raspi, statt "port" den beim Start in der Kommandozeile als optinalen Parameter angegebenen Port [default 16384] und statt "color" die gewünschten Farben "red", "green" oder "blue" verwenden. "n" wird durch die gewünschten Ziffern ersetzt. Die Kombination mehrerer Parameter in einem Aufruf wird noch nicht unterstützt).
+Die Steuerung von ambi-tv über Webinterface funktioniert von jedem beliebigen Gerät mit Web-Client (Browser, wget, curl o.Ä.) aus. Hier eine Beschreibung der Befehle und Parameter für das Webinterface (statt "raspi" die IP des Raspi, statt "port" den beim Start in der Kommandozeile als optionalen Parameter angegebenen Port [default 16384] und statt "color" die gewünschten Farben "red", "green" oder "blue" verwenden. "n" wird durch die gewünschten Ziffern ersetzt. Die Kombination mehrerer Parameter in einem Aufruf wird noch nicht unterstützt).
 Um einen Wert abzufragen statt ihn zu setzen ist bei dem jeweiligen Aufruf hinter dem "=" nichts einzutragen. In diesem Fall antwortet ambi-tv statt mit "OK" oder "ERR" mit dem für diesen Parameter eingestellten Wert. "http://raspi:port?brightness=" würde dann zum Beispiel bei einer eingestellten Gesamthelligkeit von 90% mit "90" beantwortet werden.
 
 *Konfigurationsdatei auslesen:*  
@@ -227,7 +235,7 @@ Aus dieser Datei kann man Anzahl, Anordnung und Namen der implementierten Progra
 *Modus setzen:*  
 `http://raspi:port?mode=n`
 
-Welche Modusnummer welches Programm aufruft und wieviele Modi es gibt, hängt von den Einträgen in der Config-Datei ab. Alle Werte, die größer als der maximal mögliche Modus sind schalten das Ambilight aus.
+Welche Modusnummer welches Programm aufruft und wieviele Modi es gibt, hängt von den Einträgen in der Config-Datei ab. Alle Werte, die größer als der maximal mögliche Modus sind schalten das Ambilight aus. Die Zählung beginnt dabei bei "0" für das erste Programm.
 
 *Gesamthelligkeit setzen (0...100%):*  
 `http://raspi:port?brightness=nnn`
@@ -256,4 +264,4 @@ Nicht vergessen: statt "color" die Farben "red", "green" oder "blue" einsetzen.
 ## Tools
 
 Für Linux-Receiver mit Neutrino und installierten Plugins FlexMenü, Input und MessageBox liegt in "tools/" das Script "ambi-tv-config", mit welchem man ambi-tv vom Receiver aus menügesteuert kontrollieren und parametrieren kann. Einige Screenshots der Menüs, welche einige Möglichkeiten der Steuerung demonstrieren sind [hier](doc/ambi-config.jpg) zusammengestellt. 
-Im selben Verzeichniss findet man auch das LUA Plugin zu Steuerung.(Danke an Tischi)
+Receiver mit Neutrino und LUA-Unterstützung können das ebenfalls in "tools/" liegende LUA-Script verwenden.

@@ -2,7 +2,7 @@
 -- Idee: Tischi
 -- Realisierung: SnowHead
 -- Lizenz: GPL 2
--- Version: 1.2
+-- Version: 1.3
 -- Stand: 30.09.2015
 
 local json = require "json"
@@ -18,6 +18,9 @@ conf["brightness"]=100
 conf["intensity-red"]=100
 conf["intensity-green"]=100
 conf["intensity-blue"]=100
+conf["intensity-min-red"]=3
+conf["intensity-min-green"]=3
+conf["intensity-min-blue"]=3
 conf["gamma-red"]=1.55
 conf["gamma-green"]=1.6
 conf["gamma-blue"]=1.5
@@ -52,6 +55,9 @@ function read_config(info)
 	conf["intensity-red"] = ask_config("intensity-red", 100)
 	conf["intensity-green"] = ask_config("intensity-green", 100)
 	conf["intensity-blue"] = ask_config("intensity-blue", 100)
+	conf["intensity-min-red"] = ask_config("intensity-min-red", 3)
+	conf["intensity-min-green"] = ask_config("intensity-min-green", 3)
+	conf["intensity-min-blue"] = ask_config("intensity-min-blue", 3)
 	conf["gamma-red"] = ask_config("gamma-red", 1.55)
 	conf["gamma-green"] = ask_config("gamma-green", 1.6)
 	conf["gamma-blue"] = ask_config("gamma-blue", 1.5)
@@ -217,9 +223,13 @@ function color_menu()
 	l:addItem{type="stringinput", action="set_var", id="intensity-green", value=conf["intensity-green"],  valid_chars="0123456789", size=3, name="Intensität Grün in %", icon="gruen", directkey=RC["green"]}
 	l:addItem{type="stringinput", action="set_var", id="intensity-blue", value=conf["intensity-blue"],  valid_chars="0123456789", size=3, name="Intensität Blau in %", icon="gelb", directkey=RC["yellow"]}
 	l:addItem{type="separatorline"}
-	l:addItem{type="stringinput", action="set_var", id="gamma-red", value=conf["gamma-red"],  valid_chars="0123456789.", size=4, name="Gammawert Rot", icon="blau", directkey=RC["blue"]}
-	l:addItem{type="stringinput", action="set_var", id="gamma-green", value=conf["gamma-green"],  valid_chars="0123456789.",size=4, name="Gammawert Grün", icon="1", directkey=RC["1"]}
-	l:addItem{type="stringinput", action="set_var", id="gamma-blue", value=conf["gamma-blue"], valid_chars="0123456789.", size=4, name="Gammawert Blau", icon="2", directkey=RC["2"]}
+	l:addItem{type="stringinput", action="set_var", id="intensity-min-red", value=conf["intensity-min-red"],  valid_chars="0123456789", size=3, name="Minimalintensität Rot in %", icon="blau", directkey=RC["blue"]}
+	l:addItem{type="stringinput", action="set_var", id="intensity-min-green", value=conf["intensity-min-green"],  valid_chars="0123456789", size=3, name="Minimalintensität Grün in %", icon="1", directkey=RC["1"]}
+	l:addItem{type="stringinput", action="set_var", id="intensity-min-blue", value=conf["intensity-min-blue"],  valid_chars="0123456789", size=3, name="Minimalintensität Blau in %", icon="2", directkey=RC["2"]}
+	l:addItem{type="separatorline"}
+	l:addItem{type="stringinput", action="set_var", id="gamma-red", value=conf["gamma-red"],  valid_chars="0123456789.", size=4, name="Gammawert Rot", icon="3", directkey=RC["3"]}
+	l:addItem{type="stringinput", action="set_var", id="gamma-green", value=conf["gamma-green"],  valid_chars="0123456789.",size=4, name="Gammawert Grün", icon="4", directkey=RC["4"]}
+	l:addItem{type="stringinput", action="set_var", id="gamma-blue", value=conf["gamma-blue"], valid_chars="0123456789.", size=4, name="Gammawert Blau", icon="5", directkey=RC["5"]}
 	l:exec()
 end
 
@@ -248,8 +258,9 @@ function network_menu()
 	m:hide()
 	ne = menu.new{name="Netzwerkeinstellungen", has_shadow=true}
 	ne:addItem{type="separatorline", name="Ambi-TV IP/Port"}
+	ne:addItem{type = "back"}
 	ne:addItem{type="stringinput", action="set_var2", id="RaspyIP", value=conf["RaspyIP"],  sms=1, name="IP/Hostname", icon="rot", directkey=RC["red"]}
-	ne:addItem{type="stringinput", action="set_var2", id="Port", value=conf["Port"], valid_chars="0123456789", name="Port (Standard 16384)", icon="gruen", directkey=RC["green"]}
+	ne:addItem{type="stringinput", action="set_var2", id="Port", value=conf["Port"], valid_chars="0123456789", size=5, name="Port (Standard 16384)", icon="gruen", directkey=RC["green"]}
 	ne:exec()	
 end
 

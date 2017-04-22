@@ -103,7 +103,7 @@ typedef struct
     int count;                                   //< Number of LEDs, 0 if channel is unused
     int brightness;                              //< Brightness value between 0 and 255
     int strip_type;                              //< Strip color layout -- one of PWM_DEV_STRIP_xxx constants
-    unsigned char *leds;                          //< LED buffers, allocated by driver based on count
+    unsigned char *leds;                         //< LED buffers, allocated by driver based on count
 } pwm_dev_channel_t;
 
 typedef struct

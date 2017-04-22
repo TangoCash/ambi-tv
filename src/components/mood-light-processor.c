@@ -36,6 +36,7 @@
 struct ambitv_mood_light_processor
 {
 	float step;
+	int mode;
 	float offset;
 };
 
@@ -58,22 +59,63 @@ static int ambitv_mood_light_processor_update_sink(struct ambitv_processor_compo
 
 	if (sink->f_num_outputs && sink->f_map_output_to_point && sink->f_set_output_to_rgb)
 	{
+		int x, y, r, g, b;
+		float f;
+
 		n_out = sink->f_num_outputs(sink);
 
-		for (i = 0; i < n_out; i++)
+		switch(mood->mode)
 		{
-			int x, y, r, g, b;
-			float f;
+		case 0:
+		{
+			for (i = 0; i < n_out; i++)
+			{
+				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
 
-			ret = sink->f_map_output_to_point(sink, i, 1024, 1024, &x, &y);
+				f = CONSTRAIN((x + y) / 2500.0, 0.0, 1.0);
+				f = fmod(f + mood->offset, 1.0);
 
-			f = CONSTRAIN((x / 1024.0 + y / 1024.0) / 2.0, 0.0, 1.0);
-			f = fmod(f + mood->offset, 1.0);
+				ambitv_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
 
-			ambitv_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
-
-			sink->f_set_output_to_rgb(sink, i, r, g, b);
+				sink->f_set_output_to_rgb(sink, i, r, g, b);
+			}
 		}
+		break;
+
+		case 1:
+		{
+			for (i = 0; i < n_out; i++)
+			{
+				ret = sink->f_map_output_to_point(sink, i, 1600, 900, &x, &y);
+				if(y < 0.0001)
+					f = CONSTRAIN(x / 5000.0, 0.0, 1.0);
+				else if(x > 1599.9999)
+					f = CONSTRAIN((1600.0 + y) / 5000.0, 0.0, 1.0);
+				else if(y > 899.9999)
+					f = CONSTRAIN((4100.0 - x) / 5000.0, 0.0, 1.0);
+				else
+					f = CONSTRAIN((5000.0 - y) / 5000.0, 0.0, 1.0);
+
+				f = fmod(f + mood->offset, 1.0);
+
+				ambitv_hsl_to_rgb(255 * f, 255, 128, &r, &g, &b);
+
+				sink->f_set_output_to_rgb(sink, i, r, g, b);
+			}
+		}
+		break;
+
+		case 2:
+		{
+			ambitv_hsl_to_rgb(255 * mood->offset, 255, 128, &r, &g, &b);
+			for (i = 0; i < n_out; i++)
+			{
+				sink->f_set_output_to_rgb(sink, i, r, g, b);
+			}
+		}
+		break;
+
+}
 	}
 	else
 		ret = -1;
@@ -95,6 +137,7 @@ static int ambitv_mood_light_processor_configure(struct ambitv_processor_compone
 	static struct option lopts[] =
 	{
 	{ "speed", required_argument, 0, 's' },
+	{ "mode", required_argument, 0, 'm' },
 	{ NULL, 0, 0, 0 } };
 
 	while (1)
@@ -127,6 +170,27 @@ static int ambitv_mood_light_processor_configure(struct ambitv_processor_compone
 
 			break;
 		}
+		case 'm':
+		{
+			if (NULL != optarg)
+			{
+				char* eptr = NULL;
+				long nbuf = strtol(optarg, &eptr, 10);
+
+				if ('\0' == *eptr && nbuf >= 0)
+				{
+					mood_priv->mode = nbuf;
+				}
+				else
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+							optarg);
+					return -1;
+				}
+			}
+
+			break;
+		}
 
 		default:
 			break;
@@ -147,6 +211,7 @@ static void ambitv_mood_light_processor_print_configuration(struct ambitv_proces
 	struct ambitv_mood_light_processor* mood = (struct ambitv_mood_light_processor*) component->priv;
 
 	ambitv_log(ambitv_log_info, "\tspeed:  %.1f\n", mood->step * 1000.0);
+	ambitv_log(ambitv_log_info, "\tmode:  %d\n", mood->mode);
 }
 
 static void ambitv_mood_light_processor_free(struct ambitv_processor_component* component)

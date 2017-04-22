@@ -48,8 +48,8 @@
 #define BUTTON_MILLIS         250
 #define BUTTON_MILLIS_HYST    10
 
-static const char gcolors[][18] =
-{ "gamma-red=", "gamma-green=", "gamma-blue=", "intensity-red=", "intensity-green=", "intensity-blue=" };
+static const char gcolors[][22] =
+{ "gamma-red=", "gamma-green=", "gamma-blue=", "intensity-red=", "intensity-green=", "intensity-blue=", "intensity-min-red=", "intensity-min-green=", "intensity-min-blue=" };
 
 struct ambitv_main_conf
 {
@@ -277,7 +277,7 @@ static int ambitv_runloop()
 					{
 						unsigned char idx, found = 0;
 
-						for (idx = 0; idx < 6 && !found; idx++)
+						for (idx = 0; idx < 9 && !found; idx++)
 						{
 							if ((done = ((bufferptr = strstr(buffer, gcolors[idx])) != NULL)) != 0)
 							{
@@ -626,7 +626,6 @@ static int ambitv_main_configure(int argc, char** argv)
 		}
 
 		case 'b':
-		case 'p':
 		{
 			if (NULL != optarg)
 			{
@@ -635,10 +634,30 @@ static int ambitv_main_configure(int argc, char** argv)
 
 				if ('\0' == *eptr && nbuf > 0)
 				{
-					if ('b' == c)
-						conf.gpio_idx = (int) nbuf;
-					else if ('p' == c)
-						conf.program_idx = (int) nbuf;
+					conf.gpio_idx = (int) nbuf;
+				}
+				else
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+							optarg);
+					ambitv_usage(argv[0]);
+					return -1;
+				}
+			}
+
+			break;
+		}
+
+		case 'p':
+		{
+			if (NULL != optarg)
+			{
+				char* eptr = NULL;
+				long nbuf = strtol(optarg, &eptr, 10);
+
+				if ('\0' == *eptr && nbuf >= 0)
+				{
+					conf.program_idx = (int) nbuf;
 				}
 				else
 				{
