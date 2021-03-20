@@ -226,6 +226,7 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 
 
 	memset(&vid_fmt, 0, sizeof(vid_fmt));
+	vid_fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	vid_fmt.fmt.pix.width = grabber->width;
 	vid_fmt.fmt.pix.height = grabber->height;
