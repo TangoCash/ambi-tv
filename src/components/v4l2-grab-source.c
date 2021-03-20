@@ -55,7 +55,7 @@ struct v4l2_grab
 
 	unsigned num_buffers;
 	void* buffers;
-	int width, height, bytesperline, palnorm;
+	int width, height, bytesperline, format;
 	enum ambitv_video_format fmt;
 };
 
@@ -224,12 +224,18 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 		return -ENODEV;
 	}
 
-	vid_norm = (grabber->palnorm)?V4L2_STD_PAL:V4L2_STD_525_60;
-	ret = xioctl(grabber->fd, VIDIOC_S_STD, &vid_norm);
+
+	memset(&vid_fmt, 0, sizeof(vid_fmt));
+
+	vid_fmt.fmt.pix.width = grabber->width;
+	vid_fmt.fmt.pix.height = grabber->height;
+	vid_fmt.fmt.pix.pixelformat = (grab_priv->format)?V4L2_PIX_FMT_YUYV:V4L2_PIX_FMT_MJPEG;
+
+	ret = xioctl(grabber->fd, VIDIOC_S_FMT, &vid_fmt);
 
 	if (ret < 0)
 	{
-		ambitv_log(ambitv_log_error, LOGNAME "failed to set video norm.\n");
+		ambitv_log(ambitv_log_error, LOGNAME "failed to set video width/height/format.\n");
 		return -EINVAL;
 	}
 	memset(&vid_fmt, 0, sizeof(vid_fmt));
@@ -518,7 +524,9 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 	static struct option lopts[] =
 	{
 	{ "video-device", required_argument, 0, 'd' },
-	{ "video-norm", required_argument, 0, 'n' },
+	{ "video-width", required_argument, 0, 'w' },
+	{ "video-height", required_argument, 0, 'h' },
+	{ "video-format", required_argument, 0, 'n' },
 	{ "buffers", required_argument, 0, 'b' },
 	{ "crop-top", required_argument, 0, '0' },
 	{ "crop-right", required_argument, 0, '1' },
@@ -552,7 +560,7 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 		{
 			if (NULL != optarg)
 			{
-				grab_priv->palnorm = (strstr(optarg, "PAL") != NULL);
+				grab_priv->format = (strstr(optarg, "YUYV") != NULL);
 			}
 			break;
 		}
@@ -626,6 +634,50 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 			break;
 		}
 
+		case 'w':
+		{
+			if (NULL != optarg)
+			{
+				char* eptr = NULL;
+				long nbuf = strtol(optarg, &eptr, 10);
+
+				if ('\0' == *eptr && nbuf >= 0)
+				{
+					grab_priv->width[c - '0'] = (int) nbuf;
+				}
+				else
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+							optarg);
+					return -1;
+				}
+			}
+
+			break;
+		}
+
+		case 'h':
+		{
+			if (NULL != optarg)
+			{
+				char* eptr = NULL;
+				long nbuf = strtol(optarg, &eptr, 10);
+
+				if ('\0' == *eptr && nbuf >= 0)
+				{
+					grab_priv->height[c - '0'] = (int) nbuf;
+				}
+				else
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+							optarg);
+					return -1;
+				}
+			}
+
+			break;
+		}
+
 		default:
 			break;
 		}
@@ -645,13 +697,15 @@ static void ambitv_v4l2_grab_print_configuration(struct ambitv_source_component*
 	struct v4l2_grab* grab_priv = (struct v4l2_grab*) component->priv;
 
 	ambitv_log(ambitv_log_info, "\tdevice name:              %s\n"
-			"\tvideo-norm:               %s\n"
+			"\tvideo-width:              %d\n"
+			"\tvideo-height:             %d\n"
+			"\tvideo-format:             %s\n"
 			"\tbuffers:                  %d\n"
 			"\tcrop-top:                 %d\n"
 			"\tcrop-right:               %d\n"
 			"\tcrop-bottom:              %d\n"
 			"\tcrop-left:                %d\n"
-			"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, (grab_priv->palnorm)?"PAL":"NTSC",grab_priv->req_buffers, grab_priv->crop[0],
+			"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, , grab_priv->width, grab_priv->height, (grab_priv->format)?"YUYV":"MJPEG",grab_priv->req_buffers, grab_priv->crop[0],
 			grab_priv->crop[1], grab_priv->crop[2], grab_priv->crop[3], grab_priv->auto_crop_luminance);
 }
 
