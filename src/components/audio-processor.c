@@ -341,9 +341,12 @@ static int ambitv_audio_processor_update_sink(struct ambitv_processor_component*
 						dx = 255;
 					db += dx;
 				}
-				dr /= BANDS;
-				dg /= (3 * BANDS) / 2;
-				db /= (3 * BANDS) / 2;
+				dx = dr + dg + db;
+				if(dx == 0.0)
+					dx = 1.0;
+				dr *= pow(dr / dx, 3);
+				dg *= pow(dg / dx, 3);
+				db *= pow(db / dx, 3);
 				dx = 1.0;
 				if (audio->type == ATYPE_LMETER)	// normalize brightness to 100%
 				{
@@ -435,7 +438,7 @@ static int ambitv_audio_processor_update_sink(struct ambitv_processor_component*
 				bpos1 = BANDOFFS + fbpos1;
 				bdiff1 = 1.0 - bpos2;
 				bdiff2 = bpos2;
-				tx = (((double) f[bpos1] * bdiff1) + ((double) f[bpos1 + 1] * bdiff2)) / 512.0;
+				tx = (((double) f[bpos1] * bdiff1) + ((double) f[bpos1 + 1] * bdiff2)) / (256.0 + (256.0 * ((double)bpos1 / MAXBANDS)));
 				if (tx > 1.0)
 					tx = 1.0;
 				if (audio->linear)
