@@ -229,7 +229,7 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 
 	vid_fmt.fmt.pix.width = grabber->width;
 	vid_fmt.fmt.pix.height = grabber->height;
-	vid_fmt.fmt.pix.pixelformat = (grab_priv->format)?V4L2_PIX_FMT_YUYV:V4L2_PIX_FMT_MJPEG;
+	vid_fmt.fmt.pix.pixelformat = (grabber->format)?V4L2_PIX_FMT_YUYV:V4L2_PIX_FMT_MJPEG;
 
 	ret = xioctl(grabber->fd, VIDIOC_S_FMT, &vid_fmt);
 
@@ -643,7 +643,7 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 
 				if ('\0' == *eptr && nbuf >= 0)
 				{
-					grab_priv->width[c - '0'] = (int) nbuf;
+					grab_priv->width = (int) nbuf;
 				}
 				else
 				{
@@ -665,7 +665,7 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 
 				if ('\0' == *eptr && nbuf >= 0)
 				{
-					grab_priv->height[c - '0'] = (int) nbuf;
+					grab_priv->height = (int) nbuf;
 				}
 				else
 				{
@@ -705,7 +705,7 @@ static void ambitv_v4l2_grab_print_configuration(struct ambitv_source_component*
 			"\tcrop-right:               %d\n"
 			"\tcrop-bottom:              %d\n"
 			"\tcrop-left:                %d\n"
-			"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, , grab_priv->width, grab_priv->height, (grab_priv->format)?"YUYV":"MJPEG",grab_priv->req_buffers, grab_priv->crop[0],
+			"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, grab_priv->width, grab_priv->height, (grab_priv->format)?"YUYV":"MJPEG",grab_priv->req_buffers, grab_priv->crop[0],
 			grab_priv->crop[1], grab_priv->crop[2], grab_priv->crop[3], grab_priv->auto_crop_luminance);
 }
 

@@ -18,8 +18,21 @@
 # along with ambi-tv.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-CFLAGS = -O3 -march=armv6 -mfpu=vfp -mfloat-abi=hard -Wall
+CFLAGS = -Wall
 LDFLAGS = -lpthread -lasound -lm -lfftw3
+CC = gcc
+
+ifndef LOCALBUILD
+	CFLAGS += -march=armv6 -mfpu=vfp -mfloat-abi=hard
+else
+	CFLAGS += -std=gnu90 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
+endif
+
+ifdef DEBUG
+	CFLAGS += -ggdb
+else
+	CFLAGS += -O3
+endif
 
 AMBITV = ambi-tv
 BINDIR = /usr/bin
@@ -46,10 +59,10 @@ all: $(AMBITV)
 
 ambi-tv: $(OBJ_AMBITV)
 	$(dir)
-	gcc $(LDFLAGS) $(OBJ_AMBITV) -o bin/$@      
+	$(CC) $(LDFLAGS) $(OBJ_AMBITV) -o bin/$@
 
 .c.o:
-	gcc $(CFLAGS) -c $< -o $@    
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJ_AMBITV)
