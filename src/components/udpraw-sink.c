@@ -43,9 +43,11 @@
 #include "../parse-conf.h"
 
 #define DEFAULT_UDP_HOST                "127.0.0.1"
-#define DEFAULT_UDP_PORT                5568
+#define DEFAULT_UDP_PORT                19446
 #define DEFAULT_BRIGHTNESS		        100
 #define DEFAULT_GAMMA                   1.6   // works well for me, but ymmv...
+#define DRGB_MODE                       0x02  // mode 2, wait for 5 seconds
+#define DRGB_WAIT                       0x05
 
 #define UDP_MAX_LED_NUM                 490
 
@@ -161,9 +163,14 @@ ambitv_udpraw_commit_outputs(struct ambitv_sink_component* component)
 
     if (udpraw->sockfd >= 0)
     {
-        ret = sendto(udpraw->sockfd, udpraw->grb, udpraw->grblen+1, 0, (const struct sockaddr*)&udpraw->servaddr, sizeof(udpraw->servaddr));
+        char buffer[udpraw->grblen+2];
+        memset(buffer  , DRGB_MODE, 1);
+        memset(buffer+1, DRGB_WAIT, 1);
+        memcpy(buffer+2, udpraw->grb, udpraw->grblen);
 
-        if (ret != udpraw->grblen+1)
+        ret = sendto(udpraw->sockfd, buffer, udpraw->grblen+2, 0, (const struct sockaddr*)&udpraw->servaddr, sizeof(udpraw->servaddr));
+
+        if (ret != udpraw->grblen+2)
         {
             if (ret <= 0)
                 ret = -errno;
