@@ -161,11 +161,9 @@ ambitv_udpraw_commit_outputs(struct ambitv_sink_component* component)
 
     if (udpraw->sockfd >= 0)
     {
-        //ret = sendto(udpraw->sockfd, &udpraw->grb, UDP_FRAME, 0, (const struct sockaddr*)&udpraw->servaddr, sizeof(udpraw->servaddr));
         ret = sendto(udpraw->sockfd, udpraw->grb, udpraw->grblen+1, 0, (const struct sockaddr*)&udpraw->servaddr, sizeof(udpraw->servaddr));
-        //ret = write(udpraw->sockfd, udpraw->grb, udpraw->grblen);
 
-        if (ret != udpraw->grblen)
+        if (ret != udpraw->grblen+1)
         {
             if (ret <= 0)
                 ret = -errno;
