@@ -42,16 +42,21 @@ SRC_AMBITV = src/main.c src/video-fmt.c src/parse-conf.c src/component.c	\
 	src/registrations.c src/util.c src/program.c src/log.c src/color.c		\
 	src/gpio.c src/dma.c src/mailbox.c src/rpihw.c src/pwm.c src/pwm_dev.c	\
 	src/components/v4l2-grab-source.c										\
-	src/components/audio-grab-source.c										\
 	src/components/avg-color-processor.c									\
 	src/components/ledstripe-sink.c 										\
 	src/components/timer-source.c											\
 	src/components/uart-sink.c												\
 	src/components/udpraw-sink.c											\
 	src/components/edge-color-processor.c									\
-	src/components/audio-processor.c										\
 	src/components/mood-light-processor.c									\
 	src/components/web-processor.c
+
+ifdef AUDIO_ENABLE
+SRC_AMBITV +=                                                               \
+	src/components/audio-grab-source.c										\
+	src/components/audio-processor.c
+endif
+
 
 OBJ_AMBITV = $(SRC_AMBITV:.c=.o)
 

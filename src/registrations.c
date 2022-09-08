@@ -28,16 +28,18 @@
 #include "log.h"
 
 #include "components/v4l2-grab-source.h"
-#include "components/audio-grab-source.h"
 #include "components/timer-source.h"
 #include "components/avg-color-processor.h"
 #include "components/edge-color-processor.h"
-#include "components/audio-processor.h"
 #include "components/mood-light-processor.h"
 #include "components/uart-sink.h"
 #include "components/udpraw-sink.h"
 #include "components/ledstripe-sink.h"
 #include "components/web-processor.h"
+#if AUDIO_ENABLED
+#include "components/audio-grab-source.h"
+#include "components/audio-processor.h"
+#endif
 
 #define LOGNAME      "registration: "
 
@@ -51,10 +53,12 @@ static struct ambitv_component_registration registrations[] = {
       .name             = "v4l2-grab-source",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_v4l2_grab_create
    },
+#if AUDIO_ENABLED
    {
       .name             = "audio-grab-source",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_audio_grab_create
    },
+#endif
    {
       .name             = "timer-source",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_timer_source_create
@@ -67,10 +71,12 @@ static struct ambitv_component_registration registrations[] = {
       .name             = "edge-color-processor",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_edge_color_processor_create
    },
+#if AUDIO_ENABLED
    {
       .name             = "audio-processor",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_audio_processor_create
    },
+#endif
   {
       .name             = "mood-light-processor",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_mood_light_processor_create
