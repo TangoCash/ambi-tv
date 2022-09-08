@@ -744,6 +744,7 @@ int main(int argc, char** argv)
 	for (i = 0; i < ambitv_num_programs; i++)
 		ambitv_log(ambitv_log_info, "\t%s\n", ambitv_programs[i]->name);
 
+#if RPI_ENABLE
 	if (conf.gpio_idx >= 0)
 	{
 		conf.gpio_fd = ambitv_gpio_open_button_irq(conf.gpio_idx);
@@ -757,6 +758,7 @@ int main(int argc, char** argv)
 			ambitv_log(ambitv_log_info, LOGNAME "using gpio %d as physical button.\n", conf.gpio_idx);
 		}
 	}
+#endif
 
 	tcgetattr(STDIN_FILENO, &tt);
 	tt_orig = tt.c_lflag;
@@ -830,8 +832,10 @@ int main(int argc, char** argv)
 	tt.c_lflag = tt_orig;
 	tcsetattr(STDIN_FILENO, TCSANOW, &tt);
 
+#if ENABLE_RPI
 	if (conf.gpio_fd >= 0)
 		ambitv_gpio_close_button_irq(conf.gpio_fd, conf.gpio_idx);
+#endif
 
 	return ret;
 }

@@ -34,8 +34,10 @@
 #include "components/mood-light-processor.h"
 #include "components/uart-sink.h"
 #include "components/udpraw-sink.h"
-#include "components/ledstripe-sink.h"
 #include "components/web-processor.h"
+#if RPI_ENABLE
+#include "components/ledstripe-sink.h"
+#endif
 #if AUDIO_ENABLED
 #include "components/audio-grab-source.h"
 #include "components/audio-processor.h"
@@ -81,10 +83,12 @@ static struct ambitv_component_registration registrations[] = {
       .name             = "mood-light-processor",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_mood_light_processor_create
    },
+#if RPI_ENABLE
    {
       .name             = "ledstripe-sink",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_ledstripe_create
    },
+#endif
   {
       .name             = "web-processor",
       .constructor      = (void* (*)(const char*, int, char**))ambitv_web_processor_create
