@@ -423,8 +423,8 @@ ambitv_udpraw_configure(struct ambitv_sink_component* component, int argc, char*
 
     static struct option lopts[] =
     {
-        { "udpraw-host", required_argument, 0, 'd' },
-        { "udpraw-port", required_argument, 0, 'r' },
+        { "udp-host", required_argument, 0, 'd' },
+        { "udp-port", required_argument, 0, 'r' },
         { "leds-top", required_argument, 0, '0' },
         { "leds-bottom", required_argument, 0, '1' },
         { "leds-left", required_argument, 0, '2' },
