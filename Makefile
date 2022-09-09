@@ -1,6 +1,6 @@
 # ambi-tv: a flexible ambilight clone for embedded linux
 # Copyright (C) 2013 Georg Kaindl
-# Copyright (C) 2016 TangoCash
+# Copyright (C) 2016-2022 TangoCash
 # 
 # This file is part of ambi-tv.
 # 
@@ -22,10 +22,10 @@ CFLAGS = -Wall
 LDFLAGS = -lpthread -lasound -lm
 CC = gcc
 
-ifndef LOCALBUILD
+ifdef RPI_ENABLE
 	CFLAGS += -march=armv6 -mfpu=vfp -mfloat-abi=hard
 else
-	CFLAGS += -std=gnu90 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
+	CFLAGS += -std=gnu99 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
 endif
 
 ifdef DEBUG
@@ -62,22 +62,29 @@ SRC_AMBITV +=                                                               \
 LDFLAGS += -lfftw3
 endif
 
+SRC_TESTSRV = src/udp_test_server.c
 
 OBJ_AMBITV = $(SRC_AMBITV:.c=.o)
+OBJ_TESTSRV = $(SRC_TESTSRV:.c=.o)
 
 dir=@mkdir -p bin
 
-all: $(AMBITV)
+all: $(AMBITV) udp-test-server
 
 ambi-tv: $(OBJ_AMBITV)
 	$(dir)
 	$(CC) -o bin/$@ $(OBJ_AMBITV) $(LDFLAGS)
+
+udp-test-server: $(OBJ_TESTSRV)
+	$(dir)
+	$(CC) -o bin/$@ $(OBJ_TESTSRV)
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJ_AMBITV)
+	rm -f $(OBJ_TESTSRV)
 	rm -rf bin
 
 install: $(AMBITV)
