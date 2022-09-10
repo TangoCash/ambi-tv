@@ -43,14 +43,14 @@
 #include "../parse-conf.h"
 
 #define DEFAULT_UDP_HOST                "127.0.0.1"
-#define DEFAULT_UDP_PORT                19446
+#define DEFAULT_UDP_PORT                21324
 #define DEFAULT_BRIGHTNESS		        100
 #define DEFAULT_GAMMA                   1.6   // works well for me, but ymmv...
 #define DNRGB_MODE                      4     // mode 4, wait for 5 seconds
 #define DNRGB_WAIT                      5
 
-#define MTU                             1492
-#define UDP_MAX_LED_NUM                 490
+#define UDP_OUT_MAXSIZE                 1472
+#define UDP_OUT_MAX_LED_IDX             489
 
 #define LOGNAME                         "udp: "
 
@@ -61,10 +61,10 @@ struct ambitv_udpraw_priv
 {
 	char              *udp_host;
 	int                udp_port;
-	int                sockfd, num_leds, actual_num_leds, grblen;
+	int                sockfd, num_leds, actual_num_leds, out_len;
 	int                led_len[4], *led_str[4];   // top, bottom, left, right
 	double             led_inset[4];              // top, bottom, left, right
-	unsigned char     *grb;
+	unsigned char     *out;
 	unsigned char    **bbuf;
 	int                num_bbuf, bbuf_idx;
 	int                brightness, intensity[3], intensity_min[3];
@@ -177,15 +177,14 @@ static int ambitv_udpraw_commit_outputs(struct ambitv_sink_component *component)
 
 	if (udpraw->sockfd >= 0)
 	{
+		unsigned char buffer[UDP_OUT_MAXSIZE];
 		int remain_leds = udpraw->num_leds;
 		unsigned int start_led = 0;
-		unsigned int count_led = remain_leds > UDP_MAX_LED_NUM ? UDP_MAX_LED_NUM : remain_leds;
-		k = 1;
+		unsigned int count_led = remain_leds > UDP_OUT_MAX_LED_IDX ? UDP_OUT_MAX_LED_IDX : remain_leds;
 
 		while (remain_leds > 0)
 		{
-			char buffer[count_led * 3 + 4];
-			memset(buffer, 0x00, count_led * 3 + 4);
+			memset(buffer, 0x00, UDP_OUT_MAXSIZE);
 			buffer[0] = DNRGB_MODE;
 			buffer[1] = DNRGB_WAIT;
 			buffer[2] = start_led >> 8;
@@ -194,9 +193,9 @@ static int ambitv_udpraw_commit_outputs(struct ambitv_sink_component *component)
 			for (i = 0; i < count_led; i++)
 			{
 				j = i * 3;
-				buffer[4 + j]     = udpraw->grb[start_led + j + 1];
-				buffer[4 + j + 1] = udpraw->grb[start_led + j];
-				buffer[4 + j + 2] = udpraw->grb[start_led + j + 2];
+				buffer[4 + j]     = udpraw->out[start_led + j];
+				buffer[4 + j + 1] = udpraw->out[start_led + j + 1];
+				buffer[4 + j + 2] = udpraw->out[start_led + j + 2];
 			}
 
 			ret = sendto(udpraw->sockfd, buffer, count_led * 3 + 4, 0, (const struct sockaddr *)&udpraw->servaddr, sizeof(udpraw->servaddr));
@@ -212,8 +211,8 @@ static int ambitv_udpraw_commit_outputs(struct ambitv_sink_component *component)
 				ret = 0;
 
 			start_led = count_led;
-			count_led = remain_leds - UDP_MAX_LED_NUM > UDP_MAX_LED_NUM ? UDP_MAX_LED_NUM : remain_leds - UDP_MAX_LED_NUM;
-			remain_leds = remain_leds - UDP_MAX_LED_NUM;
+			count_led = remain_leds - UDP_OUT_MAX_LED_IDX > UDP_OUT_MAX_LED_IDX ? UDP_OUT_MAX_LED_IDX : remain_leds - UDP_OUT_MAX_LED_IDX;
+			remain_leds = remain_leds - UDP_OUT_MAX_LED_IDX;
 		}
 	}
 
@@ -234,7 +233,7 @@ static void ambitv_udpraw_clear_leds(struct ambitv_sink_component *component)
 	struct ambitv_udpraw_priv *udpraw =
 		(struct ambitv_udpraw_priv *)component->priv;
 
-	if (NULL != udpraw->grb)
+	if (NULL != udpraw->out)
 	{
 		int i;
 
@@ -242,7 +241,7 @@ static void ambitv_udpraw_clear_leds(struct ambitv_sink_component *component)
 		// so that all LEDs will definitely be off afterwards.
 		for (i = 0; i < 3; i++)
 		{
-			memset(udpraw->grb, 0x00, udpraw->grblen);
+			memset(udpraw->out, 0x00, udpraw->out_len);
 			(void)ambitv_udpraw_commit_outputs(component);
 		}
 	}
@@ -251,8 +250,8 @@ static void ambitv_udpraw_clear_leds(struct ambitv_sink_component *component)
 static int ambitv_udpraw_set_output_to_rgb(struct ambitv_sink_component *component,	int idx, int r,	int g, int b)
 {
 	int ret = -1, *outp = NULL, i, *rgb[] = {&r, &g, &b};
-	struct ambitv_udpraw_priv *udpraw =
-		(struct ambitv_udpraw_priv *)component->priv;
+	struct ambitv_udpraw_priv *udpraw =	(struct ambitv_udpraw_priv *)component->priv;
+	unsigned char *bptr;
 
 	if (idx >= ambitv_special_sinkcommand_brightness)
 	{
@@ -340,20 +339,20 @@ static int ambitv_udpraw_set_output_to_rgb(struct ambitv_sink_component *compone
 		if (udpraw->num_bbuf)
 		{
 			unsigned char *acc = udpraw->bbuf[udpraw->bbuf_idx];
-			acc[3 * ii]             = g;
-			acc[3 * ii + 1]         = r;
+			acc[3 * ii]             = r;
+			acc[3 * ii + 1]         = g;
 			acc[3 * ii + 2]         = b;
 			r = g = b = 0;
 
 			for (i = 0; i < udpraw->num_bbuf; i++)
 			{
-				g += udpraw->bbuf[i][3 * ii];
-				r += udpraw->bbuf[i][3 * ii + 1];
+				r += udpraw->bbuf[i][3 * ii];
+				g += udpraw->bbuf[i][3 * ii + 1];
 				b += udpraw->bbuf[i][3 * ii + 2];
 			}
 
-			g /= udpraw->num_bbuf;
 			r /= udpraw->num_bbuf;
+			g /= udpraw->num_bbuf;
 			b /= udpraw->num_bbuf;
 		}
 
@@ -366,6 +365,8 @@ static int ambitv_udpraw_set_output_to_rgb(struct ambitv_sink_component *compone
 				*rgb[i] = ambitv_color_map_with_lut(udpraw->gamma_lut[i], *rgb[i]);
 		}
 
+		bptr = udpraw->out + (3 * ii);
+
 		if (r < udpraw->intensity_min[0] * 2.55)
 			r = udpraw->intensity_min[0] * 2.55;
 
@@ -375,9 +376,10 @@ static int ambitv_udpraw_set_output_to_rgb(struct ambitv_sink_component *compone
 		if (b < udpraw->intensity_min[2] * 2.55)
 			b = udpraw->intensity_min[2] * 2.55;
 
-		udpraw->grb[3 * ii]       = g;
-		udpraw->grb[3 * ii + 1]   = r;
-		udpraw->grb[3 * ii + 2]   = b;
+		*(bptr + 0) = r;
+		*(bptr + 1) = g;
+		*(bptr + 2) = b;
+		bptr += 3;
 		ret = 0;
 	}
 
@@ -386,27 +388,16 @@ static int ambitv_udpraw_set_output_to_rgb(struct ambitv_sink_component *compone
 
 static int ambitv_udpraw_num_outputs(struct ambitv_sink_component *component)
 {
-	struct ambitv_udpraw_priv *udpraw =
-		(struct ambitv_udpraw_priv *)component->priv;
+	struct ambitv_udpraw_priv *udpraw =	(struct ambitv_udpraw_priv *)component->priv;
 	return udpraw->num_leds;
 }
 
 static int ambitv_udpraw_start(struct ambitv_sink_component *component)
 {
 	int ret = 0;
-	struct ambitv_udpraw_priv *udpraw =
-		(struct ambitv_udpraw_priv *)component->priv;
-	/*
-	    if (udpraw->num_leds > UDP_MAX_LED_NUM)
-	    {
-	        ambitv_log(ambitv_log_error, LOGNAME "max num led: %d, %d given.\n",
-	                   UDP_MAX_LED_NUM, udpraw->num_leds);
-	        goto errReturn;
-	    }
-	*/
+
 	ambitv_udpraw_clear_leds(component);
-	return ret;
-errReturn:
+
 	return ret;
 }
 
@@ -728,8 +719,8 @@ void ambitv_udpraw_free(struct ambitv_sink_component *component)
 		if (NULL != udpraw->udp_host)
 			free(udpraw->udp_host);
 
-		if (NULL != udpraw->grb)
-			free(udpraw->grb);
+		if (NULL != udpraw->out)
+			free(udpraw->out);
 
 		if (NULL != udpraw->bbuf)
 		{
@@ -779,8 +770,8 @@ struct ambitv_sink_component *ambitv_udpraw_create(const char *name, int argc, c
 		if (ambitv_udpraw_configure(udpraw, argc, argv) < 0)
 			goto errReturn;
 
-		priv->grblen   = sizeof(unsigned char) * 3 * priv->actual_num_leds;
-		priv->grb      = (unsigned char *)malloc(priv->grblen);
+		priv->out_len   = sizeof(unsigned char) * 3 * priv->actual_num_leds;
+		priv->out      = (unsigned char *)malloc(priv->out_len);
 
 		if (priv->num_bbuf > 1)
 		{
@@ -788,14 +779,14 @@ struct ambitv_sink_component *ambitv_udpraw_create(const char *name, int argc, c
 
 			for (i = 0; i < priv->num_bbuf; i++)
 			{
-				priv->bbuf[i] = (unsigned char *)malloc(priv->grblen);
-				memset(priv->bbuf[i], 0, priv->grblen);
+				priv->bbuf[i] = (unsigned char *)malloc(priv->out_len);
+				memset(priv->bbuf[i], 0, priv->out_len);
 			}
 		}
 		else
 			priv->num_bbuf = 0;
 
-		memset(priv->grb, 0x00, priv->grblen);
+		memset(priv->out, 0x00, priv->out_len);
 
 		for (i = 0; i < 3; i++)
 		{
