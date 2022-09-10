@@ -7,8 +7,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#define PORT     19446
-#define MTU      1492
+#define PORT     21324
+#define MTU      1474
 
 int main()
 {
@@ -49,14 +49,17 @@ int main()
 		printf("Mode : %x\n", buffer[0]);
 		printf("Wait : %x\n", buffer[1]);
 		
-		unsigned int led = (buffer[2] << 8) + buffer[3];
+		uint16_t led = ((buffer[3] << 0) & 0xFF) + ((buffer[2] << 8) & 0xFF00);
 		unsigned int count = (n-4) / 3;
-		printf("Leds start from %d to %d\n", led, led+count);
+		printf("Led index start from %d count %d\n", led, count);
 		
 		unsigned char* payload = &buffer[4];
 
-		for (; count > 0; count--, payload+=3, led++)
+		for (; count > 0; count--, payload+=3)
+		{
 			printf("<LED %d 0x%02x : 0x%02x : 0x%02x> ", led, payload[0], payload[1], payload[2]);
+			led++;
+		}
 
 		printf("\n");
 	}
