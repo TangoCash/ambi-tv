@@ -33,7 +33,7 @@
 #include "components/edge-color-processor.h"
 #include "components/mood-light-processor.h"
 #include "components/uart-sink.h"
-#include "components/udpraw-sink.h"
+#include "components/udp_dnrgb-sink.h"
 #include "components/web-processor.h"
 #if RPI_ENABLE
 #include "components/ledstripe-sink.h"
@@ -100,8 +100,8 @@ static struct ambitv_component_registration registrations[] = {
    },
 
    {
-       .name            = "udpraw-sink",
-       .constructor     = (void* (*)(const char*, int, char**))ambitv_udpraw_create
+       .name            = "udp_dnrgb-sink",
+       .constructor     = (void* (*)(const char*, int, char**))ambitv_udp_dnrgb_create
    },
 
    { NULL, NULL }

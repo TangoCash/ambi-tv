@@ -44,7 +44,7 @@ SRC_AMBITV = src/main.c src/video-fmt.c src/parse-conf.c src/component.c	\
 	src/components/avg-color-processor.c									\
 	src/components/timer-source.c											\
 	src/components/uart-sink.c												\
-	src/components/udpraw-sink.c											\
+	src/components/udp_dnrgb-sink.c											\
 	src/components/edge-color-processor.c									\
 	src/components/mood-light-processor.c									\
 	src/components/web-processor.c

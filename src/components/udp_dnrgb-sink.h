@@ -17,18 +17,18 @@
 *  along with ambi-tv.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* udpraw-sink: udpraw sink for ambi-tv project
+/* udp_dnrgb-sink: udp_dnrgb sink for ambi-tv project
 *
 *  Author: TangoCash
 *  https://github.com/tangocash/ambi-tv
 */
 
-#ifndef __AMBITV_UDPRAW_SINK_H__
-#define __AMBITV_UDPRAW_SINK_H__
+#ifndef __AMBITV_UDP_DNRGB_SINK_H__
+#define __AMBITV_UDP_DNRGB_SINK_H__
 
 #include "../component.h"
 
 struct ambitv_sink_component*
-ambitv_udpraw_create(const char* name, int argc, char** argv);
+ambitv_udp_dnrgb_create(const char* name, int argc, char** argv);
 
-#endif // __AMBITV_UDPRAW_SINK_H__
+#endif // __AMBITV_UDP_DNRGB_SINK_H__
