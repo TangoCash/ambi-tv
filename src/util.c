@@ -31,7 +31,7 @@
 
 static const char html_header[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n";
 
-int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, int* len_ptr, void* ptr)
+int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, long* len_ptr, void* ptr)
 {
 	if (NULL == *list_ptr)
 	{
@@ -49,10 +49,11 @@ int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, int* len_ptr, void
 	return ++idx;
 }
 
-int ambitv_parse_led_string(const char* str, int** out_ptr, int* out_len)
+int ambitv_parse_led_string(const char* str, long** out_ptr, long* out_len)
 {
-	int a, b, c, ilen = 0, idx = 0, skip = 0, *s = &a;
-	int* list = NULL;
+	int a, b, c, idx = 0, skip = 0, *s = &a;
+	long ilen = 0;
+	long* list = NULL;
 
 	a = b = 0;
 	while (1)

@@ -62,7 +62,7 @@ struct ambitv_udp_dnrgb_priv
 	char              *udp_host;
 	int                udp_port;
 	int                sockfd, num_leds, actual_num_leds, out_len;
-	int                led_len[4], *led_str[4];   // top, bottom, left, right
+	long               led_len[4], *led_str[4];   // top, bottom, left, right
 	double             led_inset[4];              // top, bottom, left, right
 	unsigned char     *out;
 	unsigned char    **bbuf;
@@ -73,9 +73,10 @@ struct ambitv_udp_dnrgb_priv
 	struct sockaddr_in servaddr;
 };
 
-static int *ambitv_udp_dnrgb_ptr_for_output(struct ambitv_udp_dnrgb_priv *udp_dnrgb, int output, int *led_str_idx, int *led_idx)
+static long *ambitv_udp_dnrgb_ptr_for_output(struct ambitv_udp_dnrgb_priv *udp_dnrgb, int output, int *led_str_idx, int *led_idx)
 {
-	int idx = 0, *ptr = NULL;
+	int idx = 0;
+	long *ptr = NULL;
 
 	if (output < udp_dnrgb->num_leds)
 	{
@@ -102,7 +103,8 @@ static int *ambitv_udp_dnrgb_ptr_for_output(struct ambitv_udp_dnrgb_priv *udp_dn
 
 static int ambitv_udp_dnrgb_map_output_to_point(struct ambitv_sink_component *component, int output, int width, int height, int *x, int *y)
 {
-	int ret = -1, *outp = NULL, str_idx = 0, led_idx = 0;
+	int ret = -1, str_idx = 0, led_idx = 0;
+	long  *outp = NULL;
 	struct ambitv_udp_dnrgb_priv *udp_dnrgb = (struct ambitv_udp_dnrgb_priv *) component->priv;
 	outp = ambitv_udp_dnrgb_ptr_for_output(udp_dnrgb, output, &str_idx, &led_idx);
 
@@ -242,7 +244,8 @@ static void ambitv_udp_dnrgb_clear_leds(struct ambitv_sink_component *component)
 
 static int ambitv_udp_dnrgb_set_output_to_rgb(struct ambitv_sink_component *component,	int idx, int r,	int g, int b)
 {
-	int ret = -1, *outp = NULL, i, *rgb[] = {&r, &g, &b};
+	int ret = -1, i, *rgb[] = {&r, &g, &b};
+	long *outp = NULL;
 	struct ambitv_udp_dnrgb_priv *udp_dnrgb =	(struct ambitv_udp_dnrgb_priv *)component->priv;
 	unsigned char *bptr;
 

@@ -68,7 +68,7 @@ struct ambitv_ledstripe_priv
 	char* dev_name;
 	int fd, dev_speed, dev_type, dev_pin, dev_inverse, num_leds, actual_num_leds, out_len, bytes_pp, use_spi, use_8bit,
 			use_leader, use_trailer;
-	int led_len[4], *led_str[4];   // top, bottom, left, right
+	long led_len[4], *led_str[4];   // top, bottom, left, right
 	double led_inset[4];              // top, bottom, left, right
 	unsigned char* out;
 	unsigned char** bbuf;
@@ -79,10 +79,11 @@ struct ambitv_ledstripe_priv
 	unsigned char* gamma_lut[3];  // also RGB
 };
 
-static int*
+static long*
 ambitv_ledstripe_ptr_for_output(struct ambitv_ledstripe_priv* ledstripe, int output, int* led_str_idx, int* led_idx)
 {
-	int idx = 0, *ptr = NULL;
+	int idx = 0;
+	long *ptr = NULL;
 
 	if (output < ledstripe->num_leds)
 	{
@@ -110,7 +111,8 @@ ambitv_ledstripe_ptr_for_output(struct ambitv_ledstripe_priv* ledstripe, int out
 static int ambitv_ledstripe_map_output_to_point(struct ambitv_sink_component* component, int output, int width,
 		int height, int* x, int* y)
 {
-	int ret = -1, *outp = NULL, str_idx = 0, led_idx = 0;
+	int ret = -1, str_idx = 0, led_idx = 0;
+	long *outp = NULL;
 	struct ambitv_ledstripe_priv* ledstripe = (struct ambitv_ledstripe_priv*) component->priv;
 
 	outp = ambitv_ledstripe_ptr_for_output(ledstripe, output, &str_idx, &led_idx);

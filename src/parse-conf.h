@@ -65,7 +65,8 @@ struct ambitv_conf_parser
 	char* current_var_name;
 	char* current_value;
 
-	int argidx, arglen;
+	int argidx;
+	long arglen;
 	char** argv;
 
 	int (*f_handle_block)(const char*, int, char**);

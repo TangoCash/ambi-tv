@@ -31,9 +31,9 @@
 
 typedef enum { false, true } bool;
 
-int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, int* len_ptr, void* ptr);
+int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, long* len_ptr, void* ptr);
 
-int ambitv_parse_led_string(const char* str, int** out_ptr, int* out_len);
+int ambitv_parse_led_string(const char* str, long** out_ptr, long* out_len);
 
 char *stristr(const char *String, const char *Pattern);
 

@@ -56,7 +56,7 @@ struct ambitv_uart_priv {
    char*             baudrate_str;
    int               fd, baudrate, num_leds, actual_num_leds, grblen;
    struct termios    device_options;
-   int               led_len[4], *led_str[4];   // top, bottom, left, right
+   long              led_len[4], *led_str[4];   // top, bottom, left, right
    double            led_inset[4];              // top, bottom, left, right
    unsigned char*    grb;
    unsigned char**   bbuf;
@@ -66,10 +66,11 @@ struct ambitv_uart_priv {
    unsigned char*    gamma_lut[3];  // also RGB
 };
 
-static int*
+static long*
 ambitv_uart_ptr_for_output(struct ambitv_uart_priv* uart, int output, int* led_str_idx, int* led_idx)
 {
-   int idx = 0, *ptr = NULL;
+   int idx = 0;
+   long *ptr = NULL;
 
    if (output < uart->num_leds) {
       while(output >= uart->led_len[idx]) {
@@ -100,7 +101,8 @@ ambitv_uart_map_output_to_point(
    int* x,
    int* y)
 {
-   int ret = -1, *outp = NULL, str_idx = 0, led_idx = 0;
+   int ret = -1, str_idx = 0, led_idx = 0;
+   long *outp = NULL;
    struct ambitv_uart_priv* uart =
       (struct ambitv_uart_priv*)component->priv;
 
@@ -192,7 +194,8 @@ ambitv_uart_set_output_to_rgb(
    int g,
    int b)
 {
-   int ret = -1, *outp = NULL, i, *rgb[] = {&r, &g, &b};
+   int ret = -1, i, *rgb[] = {&r, &g, &b};
+   long *outp = NULL;
    struct ambitv_uart_priv* uart =
       (struct ambitv_uart_priv*)component->priv;
 

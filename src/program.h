@@ -24,7 +24,8 @@ struct ambitv_program {
    char* name;
    
    void** components;
-   int num_components, len_components;
+   int num_components;
+   long len_components;
 };
 
 extern struct ambitv_program** ambitv_programs;

@@ -38,7 +38,8 @@ struct ambitv_any_component {
 };
 
 void** ambitv_components;
-static int ambitv_len_components, ambitv_num_components;
+static long ambitv_len_components;
+static int ambitv_num_components;
 
 int
 ambitv_component_enable(void* component)
