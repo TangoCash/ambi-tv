@@ -292,7 +292,7 @@ static int ambitv_video_fmt_detect_crop_for_frame_yuyv(int crop[4],
 	return ret;
 }
 
-ambitv_video_fmt_detect_crop_for_frame_uyvy(int crop[4], int luminance_threshold, const void* pixbuf, int w, int h, int bytesperline)
+static int ambitv_video_fmt_detect_crop_for_frame_uyvy(int crop[4], int luminance_threshold, const void* pixbuf, int w, int h, int bytesperline)
 {
    int ret = -1;
    
