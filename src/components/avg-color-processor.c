@@ -29,10 +29,10 @@ struct ambitv_avg_processor_priv
 	unsigned char rgb[3];
 };
 
-static int ambitv_avg_color_processor_handle_frame(struct ambitv_processor_component* component, void* frame, int width,
-		int height, int bytesperline, int fmt)
+static int ambitv_avg_color_processor_handle_frame(struct ambitv_processor_component *component, void *frame, int width,
+	int height, int bytesperline, int fmt)
 {
-	struct ambitv_avg_processor_priv* avg = (struct ambitv_avg_processor_priv*) component->priv;
+	struct ambitv_avg_processor_priv *avg = (struct ambitv_avg_processor_priv *) component->priv;
 
 	if (NULL != frame)
 	{
@@ -45,12 +45,12 @@ static int ambitv_avg_color_processor_handle_frame(struct ambitv_processor_compo
 	return 0;
 }
 
-static int ambitv_avg_color_processor_update_sink(struct ambitv_processor_component* processor,
-		struct ambitv_sink_component* sink)
+static int ambitv_avg_color_processor_update_sink(struct ambitv_processor_component *processor,
+	struct ambitv_sink_component *sink)
 {
 	int i, n_out, ret = 0;
 
-	struct ambitv_avg_processor_priv* avg = (struct ambitv_avg_processor_priv*) processor->priv;
+	struct ambitv_avg_processor_priv *avg = (struct ambitv_avg_processor_priv *) processor->priv;
 
 	if (sink->f_num_outputs && sink->f_set_output_to_rgb)
 	{
@@ -70,22 +70,22 @@ static int ambitv_avg_color_processor_update_sink(struct ambitv_processor_compon
 	return ret;
 }
 
-static void ambitv_avg_color_processor_free(struct ambitv_processor_component* component)
+static void ambitv_avg_color_processor_free(struct ambitv_processor_component *component)
 {
 	free(component->priv);
 }
 
-struct ambitv_processor_component*
-ambitv_avg_color_processor_create(const char* name, int argc, char** argv)
+struct ambitv_processor_component *
+ambitv_avg_color_processor_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_processor_component* avg_processor = ambitv_processor_component_create(name);
+	struct ambitv_processor_component *avg_processor = ambitv_processor_component_create(name);
 
 	if (NULL != avg_processor)
 	{
-		struct ambitv_avg_processor_priv* priv = (struct ambitv_avg_processor_priv*) malloc(
+		struct ambitv_avg_processor_priv *priv = (struct ambitv_avg_processor_priv *) malloc(
 				sizeof(struct ambitv_avg_processor_priv));
 
-		avg_processor->priv = (void*) priv;
+		avg_processor->priv = (void *) priv;
 
 		avg_processor->f_consume_frame = ambitv_avg_color_processor_handle_frame;
 		avg_processor->f_update_sink = ambitv_avg_color_processor_update_sink;

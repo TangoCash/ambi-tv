@@ -39,7 +39,7 @@ int main()
 	}
 
 	unsigned int   len, n;
-	
+
 	while (1)
 	{
 		len = sizeof(cliaddr);  //len is value/result
@@ -48,14 +48,14 @@ int main()
 		printf("Received : %d bytes\n", n);
 		printf("Mode : %x\n", buffer[0]);
 		printf("Wait : %x\n", buffer[1]);
-		
-		uint16_t led = ((buffer[3] << 0) & 0xFF) + ((buffer[2] << 8) & 0xFF00);
-		unsigned int count = (n-4) / 3;
-		printf("Led index start from %d count %d\n", led, count);
-		
-		unsigned char* payload = &buffer[4];
 
-		for (; count > 0; count--, payload+=3)
+		uint16_t led = ((buffer[3] << 0) & 0xFF) + ((buffer[2] << 8) & 0xFF00);
+		unsigned int count = (n - 4) / 3;
+		printf("Led index start from %d count %d\n", led, count);
+
+		unsigned char *payload = &buffer[4];
+
+		for (; count > 0; count--, payload += 3)
 		{
 			printf("<LED %d 0x%02x : 0x%02x : 0x%02x> ", led, payload[0], payload[1], payload[2]);
 			led++;

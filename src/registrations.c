@@ -45,148 +45,161 @@
 
 #define LOGNAME      "registration: "
 
-struct ambitv_component_registration {
-   char* name;
-   void* (*constructor)(const char*, int, char**);
+struct ambitv_component_registration
+{
+	char *name;
+	void *(*constructor)(const char *, int, char **);
 };
 
-static struct ambitv_component_registration registrations[] = {
-   {
-      .name             = "v4l2-grab-source",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_v4l2_grab_create
-   },
+static struct ambitv_component_registration registrations[] =
+{
+	{
+		.name             = "v4l2-grab-source",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_v4l2_grab_create
+	},
 #if AUDIO_ENABLED
-   {
-      .name             = "audio-grab-source",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_audio_grab_create
-   },
+	{
+		.name             = "audio-grab-source",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_audio_grab_create
+	},
 #endif
-   {
-      .name             = "timer-source",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_timer_source_create
-   },
-   {
-      .name             = "avg-color-processor",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_avg_color_processor_create
-   },
-   {
-      .name             = "edge-color-processor",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_edge_color_processor_create
-   },
+	{
+		.name             = "timer-source",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_timer_source_create
+	},
+	{
+		.name             = "avg-color-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_avg_color_processor_create
+	},
+	{
+		.name             = "edge-color-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_edge_color_processor_create
+	},
 #if AUDIO_ENABLED
-   {
-      .name             = "audio-processor",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_audio_processor_create
-   },
+	{
+		.name             = "audio-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_audio_processor_create
+	},
 #endif
-  {
-      .name             = "mood-light-processor",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_mood_light_processor_create
-   },
+	{
+		.name             = "mood-light-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_mood_light_processor_create
+	},
 #if RPI_ENABLE
-   {
-      .name             = "ledstripe-sink",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_ledstripe_create
-   },
+	{
+		.name             = "ledstripe-sink",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_ledstripe_create
+	},
 #endif
-  {
-      .name             = "web-processor",
-      .constructor      = (void* (*)(const char*, int, char**))ambitv_web_processor_create
-   },
+	{
+		.name             = "web-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_web_processor_create
+	},
 
-   {
-       .name            = "uart-sink",
-       .constructor     = (void* (*)(const char*, int, char**))ambitv_uart_create
-   },
+	{
+		.name            = "uart-sink",
+		.constructor     = (void *(*)(const char *, int, char **))ambitv_uart_create
+	},
 
-   {
-       .name            = "udp_dnrgb-sink",
-       .constructor     = (void* (*)(const char*, int, char**))ambitv_udp_dnrgb_create
-   },
+	{
+		.name            = "udp_dnrgb-sink",
+		.constructor     = (void *(*)(const char *, int, char **))ambitv_udp_dnrgb_create
+	},
 
-   { NULL, NULL }
+	{ NULL, NULL }
 };
 
 int
-ambitv_register_component_for_name(const char* name, int argc, char** argv)
+ambitv_register_component_for_name(const char *name, int argc, char **argv)
 {
-   int i, argv_copied = 0, ret = -1, aargc = argc;
-   char** aargv = argv;
-   struct ambitv_component_registration* r = registrations;
+	int i, argv_copied = 0, ret = -1, aargc = argc;
+	char **aargv = argv;
+	struct ambitv_component_registration *r = registrations;
 
-   while (NULL != r->name) {
-      if (0 == strcmp(name, r->name)) {
-         void* component;
+	while (NULL != r->name)
+	{
+		if (0 == strcmp(name, r->name))
+		{
+			void *component;
 
-         if (argc > 1) {
-            for (i=1; i<argc; i+=2) {
-               if (0 == strcmp(argv[i], "--name")) {
-                  name = argv[i+1];
+			if (argc > 1)
+			{
+				for (i = 1; i < argc; i += 2)
+				{
+					if (0 == strcmp(argv[i], "--name"))
+					{
+						name = argv[i + 1];
 
-                  aargv = (char**)malloc(sizeof(char*) * (argc-1));
-                  memcpy(aargv, argv, sizeof(char*) * i);
-                  memcpy(&aargv[i], &argv[i+2], sizeof(char*) * (argc-i-1));
-                  aargc = argc - 2;
+						aargv = (char **)malloc(sizeof(char *) * (argc - 1));
+						memcpy(aargv, argv, sizeof(char *) * i);
+						memcpy(&aargv[i], &argv[i + 2], sizeof(char *) * (argc - i - 1));
+						aargc = argc - 2;
 
-                  argv_copied = 1;
+						argv_copied = 1;
 
-                  break;
-               }
-            }
-         }
+						break;
+					}
+				}
+			}
 
-         optind = 0;
-         component = r->constructor(name, aargc, aargv);
+			optind = 0;
+			component = r->constructor(name, aargc, aargv);
 
-         if (NULL != component) {
+			if (NULL != component)
+			{
 
-            if (ambitv_component_enable(component) < 0) {
-               ambitv_log(ambitv_log_info, LOGNAME "failed to register component '%s' (class %s).\n",
-                  name, r->name);
-               ret = -4;
-               goto returning;
-            }
+				if (ambitv_component_enable(component) < 0)
+				{
+					ambitv_log(ambitv_log_info, LOGNAME "failed to register component '%s' (class %s).\n",
+						name, r->name);
+					ret = -4;
+					goto returning;
+				}
 
-            ambitv_log(ambitv_log_info, LOGNAME "registered component '%s' (class %s).\n",
-               name, r->name);
+				ambitv_log(ambitv_log_info, LOGNAME "registered component '%s' (class %s).\n",
+					name, r->name);
 
-            ambitv_component_print_configuration(component);
+				ambitv_component_print_configuration(component);
 
-            ret = 0;
-            goto returning;
-         } else {
-            // TODO: error while constructing
-            ret = -3;
-            goto returning;
-         }
-      }
+				ret = 0;
+				goto returning;
+			}
+			else
+			{
+				// TODO: error while constructing
+				ret = -3;
+				goto returning;
+			}
+		}
 
-      r++;
-   }
+		r++;
+	}
 
-   ambitv_log(ambitv_log_error, LOGNAME "failed to find component class %s.\n",
-      name);
+	ambitv_log(ambitv_log_error, LOGNAME "failed to find component class %s.\n",
+		name);
 
 returning:
-   if (argv_copied) {
-      free(aargv);
-   }
+	if (argv_copied)
+	{
+		free(aargv);
+	}
 
-   return ret;
+	return ret;
 }
 
 int
-ambitv_register_program_for_name(const char* name, int argc, char** argv)
+ambitv_register_program_for_name(const char *name, int argc, char **argv)
 {
-   int ret = -1;
+	int ret = -1;
 
-   struct ambitv_program* program = ambitv_program_create(name, argc, argv);
-   if (NULL != program) {
-      ret = ambitv_program_enable(program);
+	struct ambitv_program *program = ambitv_program_create(name, argc, argv);
+	if (NULL != program)
+	{
+		ret = ambitv_program_enable(program);
 
-      if (ret < 0)
-         ambitv_program_free(program);
-   }
+		if (ret < 0)
+			ambitv_program_free(program);
+	}
 
-   return ret;
+	return ret;
 }

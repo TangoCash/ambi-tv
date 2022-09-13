@@ -22,7 +22,7 @@
 
 #include "../component.h"
 
-struct ambitv_processor_component*
-ambitv_avg_color_processor_create(const char* name, int argc, char** argv);
+struct ambitv_processor_component *
+ambitv_avg_color_processor_create(const char *name, int argc, char **argv);
 
 #endif // __AMBITV_AVG_COLOR_PROCESSOR_H__

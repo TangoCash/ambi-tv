@@ -15,7 +15,7 @@
  *         provided with the distribution.
  *     3.  Neither the name of the owner nor the names of its contributors may be used to endorse
  *         or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
@@ -32,8 +32,9 @@
 
 #include <stdint.h>
 
-typedef struct {
-    uint32_t ctl;
+typedef struct
+{
+	uint32_t ctl;
 #define CM_PWM_CTL_PASSWD                        (0x5a << 24)
 #define CM_PWM_CTL_MASH(val)                     ((val & 0x3) << 9)
 #define CM_PWM_CTL_FLIP                          (1 << 8)
@@ -48,7 +49,7 @@ typedef struct {
 #define CM_PWM_CTL_SRC_PLLC                      (5 << 0)
 #define CM_PWM_CTL_SRC_PLLD                      (6 << 0)
 #define CM_PWM_CTL_SRC_HDMIAUX                   (7 << 0)
-    uint32_t div;
+	uint32_t div;
 #define CM_PWM_DIV_PASSWD                        (0x5a << 24)
 #define CM_PWM_DIV_DIVI(val)                     ((val & 0xfff) << 12)
 #define CM_PWM_DIV_DIVF(val)                     ((val & 0xfff) << 0)

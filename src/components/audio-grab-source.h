@@ -22,8 +22,8 @@
 
 #include "../component.h"
 
-struct ambitv_source_component*
-ambitv_audio_grab_create(const char* name, int argc, char** argv);
+struct ambitv_source_component *
+ambitv_audio_grab_create(const char *name, int argc, char **argv);
 
 #define SAMPLES					2048
 

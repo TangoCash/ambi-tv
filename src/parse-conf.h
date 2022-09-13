@@ -58,27 +58,25 @@ struct ambitv_conf_parser
 {
 	enum ambitv_conf_parser_state state;
 
-	char* path;
+	char *path;
 	unsigned current_line_num;
 
-	char* current_block_name;
-	char* current_var_name;
-	char* current_value;
+	char *current_block_name;
+	char *current_var_name;
+	char *current_value;
 
 	int argidx;
 	intptr_t arglen;
-	char** argv;
+	char **argv;
 
-	int (*f_handle_block)(const char*, int, char**);
+	int (*f_handle_block)(const char *, int, char **);
 };
 
-struct ambitv_conf_parser*
+struct ambitv_conf_parser *
 ambitv_conf_parser_create(void);
 
-void
-ambitv_conf_parser_free(struct ambitv_conf_parser* parser);
+void ambitv_conf_parser_free(struct ambitv_conf_parser *parser);
 
-int
-ambitv_conf_parser_read_config_file(struct ambitv_conf_parser* parser, const char* path);
+int ambitv_conf_parser_read_config_file(struct ambitv_conf_parser *parser, const char *path);
 
 #endif // __AMBITV_PARSE_CONF_H__

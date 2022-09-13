@@ -33,16 +33,17 @@
 
 #include <stdint.h>
 
-typedef struct {
-    uint32_t type;
+typedef struct
+{
+	uint32_t type;
 #define RPI_HWVER_TYPE_UNKNOWN                   0
 #define RPI_HWVER_TYPE_PI1                       1
 #define RPI_HWVER_TYPE_PI2                       2
 #define RPI_HWVER_TYPE_PI4                       3
-    uint32_t hwver;
-    uint32_t periph_base;
-    uint32_t videocore_base;
-    char *desc;
+	uint32_t hwver;
+	uint32_t periph_base;
+	uint32_t videocore_base;
+	char *desc;
 } rpi_hw_t;
 
 

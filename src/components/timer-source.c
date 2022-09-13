@@ -36,40 +36,41 @@ struct ambitv_timer_priv
 	unsigned long usec;
 };
 
-static int ambitv_timer_source_start(struct ambitv_source_component* timer)
+static int ambitv_timer_source_start(struct ambitv_source_component *timer)
 {
 	return 0;
 }
 
-static int ambitv_timer_source_stop(struct ambitv_source_component* timer)
+static int ambitv_timer_source_stop(struct ambitv_source_component *timer)
 {
 	return 0;
 }
 
-static int ambitv_timer_source_loop_iteration(struct ambitv_source_component* timer)
+static int ambitv_timer_source_loop_iteration(struct ambitv_source_component *timer)
 {
-	struct ambitv_timer_priv* timer_priv = (struct ambitv_timer_priv*) timer->priv;
+	struct ambitv_timer_priv *timer_priv = (struct ambitv_timer_priv *) timer->priv;
 
 	usleep(timer_priv->usec);
 
 	ambitv_source_component_distribute_to_active_processors(timer,
-	NULL, 0, 0, 0, ambitv_video_format_unknown);
+		NULL, 0, 0, 0, ambitv_video_format_unknown);
 
 	return 0;
 }
 
-static int ambitv_timer_source_configure(struct ambitv_source_component* timer, int argc, char** argv)
+static int ambitv_timer_source_configure(struct ambitv_source_component *timer, int argc, char **argv)
 {
 	int c, ret = 0;
 
-	struct ambitv_timer_priv* timer_priv = (struct ambitv_timer_priv*) timer->priv;
+	struct ambitv_timer_priv *timer_priv = (struct ambitv_timer_priv *) timer->priv;
 	if (NULL == timer_priv)
 		return -1;
 
 	static struct option lopts[] =
 	{
-	{ "millis", required_argument, 0, 'm' },
-	{ NULL, 0, 0, 0 } };
+		{ "millis", required_argument, 0, 'm' },
+		{ NULL, 0, 0, 0 }
+	};
 
 	while (1)
 	{
@@ -80,30 +81,30 @@ static int ambitv_timer_source_configure(struct ambitv_source_component* timer, 
 
 		switch (c)
 		{
-		case 'm':
-		{
-			if (NULL != optarg)
+			case 'm':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf > 0)
-				{
-					timer_priv->usec = ((unsigned long) nbuf) * 1000;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf > 0)
+					{
+						timer_priv->usec = ((unsigned long) nbuf) * 1000;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -116,25 +117,25 @@ static int ambitv_timer_source_configure(struct ambitv_source_component* timer, 
 	return ret;
 }
 
-static void ambitv_timer_source_print_configuration(struct ambitv_source_component* component)
+static void ambitv_timer_source_print_configuration(struct ambitv_source_component *component)
 {
-	struct ambitv_timer_priv* timer_priv = (struct ambitv_timer_priv*) component->priv;
+	struct ambitv_timer_priv *timer_priv = (struct ambitv_timer_priv *) component->priv;
 
 	ambitv_log(ambitv_log_info, "\tmillis: %lu\n", timer_priv->usec / 1000);
 }
 
-static void ambitv_timer_source_free(struct ambitv_source_component* component)
+static void ambitv_timer_source_free(struct ambitv_source_component *component)
 {
 }
 
-struct ambitv_source_component*
-ambitv_timer_source_create(const char* name, int argc, char** argv)
+struct ambitv_source_component *
+ambitv_timer_source_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_source_component* timer = ambitv_source_component_create(name);
+	struct ambitv_source_component *timer = ambitv_source_component_create(name);
 
 	if (NULL != timer)
 	{
-		struct ambitv_timer_priv* timer_priv = (struct ambitv_timer_priv*) malloc(sizeof(struct ambitv_timer_priv));
+		struct ambitv_timer_priv *timer_priv = (struct ambitv_timer_priv *) malloc(sizeof(struct ambitv_timer_priv));
 		if (NULL == timer_priv)
 			goto errReturn;
 
@@ -154,7 +155,7 @@ ambitv_timer_source_create(const char* name, int argc, char** argv)
 
 	return timer;
 
-	errReturn: ambitv_source_component_free(timer);
+errReturn: ambitv_source_component_free(timer);
 
 	return NULL;
 }

@@ -165,7 +165,7 @@ static int ambitv_udp_dnrgb_commit_outputs(struct ambitv_sink_component *compone
 		{
 			ret = udp_dnrgb->sockfd;
 			ambitv_log(ambitv_log_error, LOGNAME "failed to open socket '%s' : %d (%s).\n",
-				   udp_dnrgb->udp_host, errno, strerror(errno));
+				udp_dnrgb->udp_host, errno, strerror(errno));
 			//goto errReturn;
 		}
 		else
@@ -191,7 +191,7 @@ static int ambitv_udp_dnrgb_commit_outputs(struct ambitv_sink_component *compone
 			buffer[2] = start_led >> 8;
 			buffer[3] = start_led;
 
-			memcpy(&buffer[4],&udp_dnrgb->out[start_led], count_led*3);
+			memcpy(&buffer[4], &udp_dnrgb->out[start_led], count_led * 3);
 
 			ret = sendto(udp_dnrgb->sockfd, buffer, count_led * 3 + 4, 0, (const struct sockaddr *)&udp_dnrgb->servaddr, sizeof(udp_dnrgb->servaddr));
 
@@ -298,7 +298,7 @@ static int ambitv_udp_dnrgb_set_output_to_rgb(struct ambitv_sink_component *comp
 				{
 					udp_dnrgb->intensity[idx] = r / 100;
 					ambitv_log(ambitv_log_info, LOGNAME "intensity-%s was set to %d%%", scol[idx],
-						   udp_dnrgb->intensity[idx]);
+						udp_dnrgb->intensity[idx]);
 					ret = 0;
 				}
 			}
@@ -316,7 +316,7 @@ static int ambitv_udp_dnrgb_set_output_to_rgb(struct ambitv_sink_component *comp
 				{
 					udp_dnrgb->intensity_min[idx] = r / 100;
 					ambitv_log(ambitv_log_info, LOGNAME "intensity-min-%s was set to %d%%", scol[idx],
-						   udp_dnrgb->intensity_min[idx]);
+						udp_dnrgb->intensity_min[idx]);
 					ret = 0;
 				}
 			}
@@ -483,7 +483,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error,
-							   LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+							LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -506,7 +506,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n",
-							   argv[optind - 2], optarg);
+							argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -529,7 +529,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error,
-							   LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+							LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -549,7 +549,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 				if (ret < 0)
 				{
 					ambitv_log(ambitv_log_error, LOGNAME "invalid led configuration string for '%s': '%s'.\n",
-						   argv[optind - 2], optarg);
+						argv[optind - 2], optarg);
 					goto errReturn;
 				}
 
@@ -578,7 +578,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n",
-							   argv[optind - 2], optarg);
+							argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -603,7 +603,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error,
-							   LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+							LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -628,7 +628,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error,
-							   LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+							LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -654,7 +654,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 					else
 					{
 						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n",
-							   argv[optind - 2], optarg);
+							argv[optind - 2], optarg);
 						ret = -1;
 						goto errReturn;
 					}
@@ -671,7 +671,7 @@ static int ambitv_udp_dnrgb_configure(struct ambitv_sink_component *component, i
 	if (optind < argc)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "extraneous argument: '%s'.\n",
-			   argv[optind]);
+			argv[optind]);
 		ret = -1;
 	}
 
@@ -683,26 +683,26 @@ static void ambitv_udp_dnrgb_print_configuration(struct ambitv_sink_component *c
 {
 	struct ambitv_udp_dnrgb_priv *udp_dnrgb =	(struct ambitv_udp_dnrgb_priv *)component->priv;
 	ambitv_log(ambitv_log_info,
-		   "\tudp host:          %s\n"
-		   "\tudp port:          %d\n"
-		   "\tnumber of leds:    %d\n"
-		   "\tblending frames:   %d\n"
-		   "\tled insets (tblr): %.1f%%, %.1f%%, %.1f%%, %.1f%%\n"
-		   "\tbrightness:          %d%%\n"
-		   "\tintensity (rgb):     %d%%, %d%%, %d%%\n"
-		   "\tintensity-min (rgb): %d%%, %d%%, %d%%\n"
-		   "\tgamma (rgb):       %.2f, %.2f, %.2f\n",
-		   udp_dnrgb->udp_host,
-		   udp_dnrgb->udp_port,
-		   udp_dnrgb->actual_num_leds,
-		   udp_dnrgb->num_bbuf,
-		   udp_dnrgb->led_inset[0] * 100.0, udp_dnrgb->led_inset[1] * 100.0,
-		   udp_dnrgb->led_inset[2] * 100.0, udp_dnrgb->led_inset[3] * 100.0,
-		   udp_dnrgb->brightness,
-		   udp_dnrgb->intensity[0], udp_dnrgb->intensity[1], udp_dnrgb->intensity[2],
-		   udp_dnrgb->intensity_min[0], udp_dnrgb->intensity_min[1], udp_dnrgb->intensity_min[2],
-		   udp_dnrgb->gamma[0], udp_dnrgb->gamma[1], udp_dnrgb->gamma[2]
-		  );
+		"\tudp host:          %s\n"
+		"\tudp port:          %d\n"
+		"\tnumber of leds:    %d\n"
+		"\tblending frames:   %d\n"
+		"\tled insets (tblr): %.1f%%, %.1f%%, %.1f%%, %.1f%%\n"
+		"\tbrightness:          %d%%\n"
+		"\tintensity (rgb):     %d%%, %d%%, %d%%\n"
+		"\tintensity-min (rgb): %d%%, %d%%, %d%%\n"
+		"\tgamma (rgb):       %.2f, %.2f, %.2f\n",
+		udp_dnrgb->udp_host,
+		udp_dnrgb->udp_port,
+		udp_dnrgb->actual_num_leds,
+		udp_dnrgb->num_bbuf,
+		udp_dnrgb->led_inset[0] * 100.0, udp_dnrgb->led_inset[1] * 100.0,
+		udp_dnrgb->led_inset[2] * 100.0, udp_dnrgb->led_inset[3] * 100.0,
+		udp_dnrgb->brightness,
+		udp_dnrgb->intensity[0], udp_dnrgb->intensity[1], udp_dnrgb->intensity[2],
+		udp_dnrgb->intensity_min[0], udp_dnrgb->intensity_min[1], udp_dnrgb->intensity_min[2],
+		udp_dnrgb->gamma[0], udp_dnrgb->gamma[1], udp_dnrgb->gamma[2]
+	);
 }
 
 void ambitv_udp_dnrgb_free(struct ambitv_sink_component *component)

@@ -35,15 +35,15 @@
 
 struct ambitv_edge_processor_priv
 {
-	void* frame;
+	void *frame;
 	int type, width, height, bytesperline, boxsize[2];
 	enum ambitv_video_format fmt;
 };
 
-static int ambitv_edge_color_processor_handle_frame(struct ambitv_processor_component* component, void* frame,
-		int width, int height, int bytesperline, int fmt)
+static int ambitv_edge_color_processor_handle_frame(struct ambitv_processor_component *component, void *frame,
+	int width, int height, int bytesperline, int fmt)
 {
-	struct ambitv_edge_processor_priv* edge = (struct ambitv_edge_processor_priv*) component->priv;
+	struct ambitv_edge_processor_priv *edge = (struct ambitv_edge_processor_priv *) component->priv;
 
 	if (edge->type & 0x01)
 		width >>= 1;
@@ -58,12 +58,12 @@ static int ambitv_edge_color_processor_handle_frame(struct ambitv_processor_comp
 	return 0;
 }
 
-static int ambitv_edge_color_processor_update_sink(struct ambitv_processor_component* processor,
-		struct ambitv_sink_component* sink)
+static int ambitv_edge_color_processor_update_sink(struct ambitv_processor_component *processor,
+	struct ambitv_sink_component *sink)
 {
 	int i, n_out, ret = 0;
 
-	struct ambitv_edge_processor_priv* edge = (struct ambitv_edge_processor_priv*) processor->priv;
+	struct ambitv_edge_processor_priv *edge = (struct ambitv_edge_processor_priv *) processor->priv;
 
 	if (NULL == edge->frame)
 		return 0;
@@ -92,7 +92,7 @@ static int ambitv_edge_color_processor_update_sink(struct ambitv_processor_compo
 				y2 = CONSTRAIN(y + (edge->boxsize[1] >> 1), 0, edge->height);
 
 				ambitv_video_fmt_avg_rgb_for_block(rgb, edge->frame, x, y, x2 - x, y2 - y, edge->bytesperline,
-						edge->fmt, 4);
+					edge->fmt, 4);
 
 				sink->f_set_output_to_rgb(sink, i, rgb[0], rgb[1], rgb[2]);
 			}
@@ -107,16 +107,17 @@ static int ambitv_edge_color_processor_update_sink(struct ambitv_processor_compo
 	return ret;
 }
 
-static int ambitv_edge_color_processor_configure(struct ambitv_edge_processor_priv* edge, int argc, char** argv)
+static int ambitv_edge_color_processor_configure(struct ambitv_edge_processor_priv *edge, int argc, char **argv)
 {
 	int c, ret = 0;
 
 	static struct option lopts[] =
 	{
-	{ "vtype", required_argument, 0, 't' },
-	{ "box-width", required_argument, 0, '0' },
-	{ "box-height", required_argument, 0, '1' },
-	{ NULL, 0, 0, 0 } };
+		{ "vtype", required_argument, 0, 't' },
+		{ "box-width", required_argument, 0, '0' },
+		{ "box-height", required_argument, 0, '1' },
+		{ NULL, 0, 0, 0 }
+	};
 
 	optind = 0;
 	while (1)
@@ -128,55 +129,55 @@ static int ambitv_edge_color_processor_configure(struct ambitv_edge_processor_pr
 
 		switch (c)
 		{
-		case 't':
-		{
-			if (NULL != optarg)
+			case 't':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr)
-				{
-					edge->type = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr)
+					{
+						edge->type = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					ret = -1;
-					goto errReturn;
+						ret = -1;
+						goto errReturn;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case '0':
-		case '1':
-		{
-			if (NULL != optarg)
+			case '0':
+			case '1':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf > 0)
-				{
-					edge->boxsize[c - '0'] = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf > 0)
+					{
+						edge->boxsize[c - '0'] = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					ret = -1;
-					goto errReturn;
+						ret = -1;
+						goto errReturn;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -186,34 +187,34 @@ static int ambitv_edge_color_processor_configure(struct ambitv_edge_processor_pr
 		ret = -1;
 	}
 
-	errReturn: return ret;
+errReturn: return ret;
 }
 
-static void ambitv_edge_color_processor_print_configuration(struct ambitv_processor_component* component)
+static void ambitv_edge_color_processor_print_configuration(struct ambitv_processor_component *component)
 {
-	struct ambitv_edge_processor_priv* edge = (struct ambitv_edge_processor_priv*) component->priv;
+	struct ambitv_edge_processor_priv *edge = (struct ambitv_edge_processor_priv *) component->priv;
 
 	ambitv_log(ambitv_log_info, "\ttype:  %d\n\tbox-width:  %d\n"
-			"\tbox-height: %d\n", edge->type, edge->boxsize[0], edge->boxsize[1]);
+		"\tbox-height: %d\n", edge->type, edge->boxsize[0], edge->boxsize[1]);
 }
 
-static void ambitv_edge_color_processor_free(struct ambitv_processor_component* component)
+static void ambitv_edge_color_processor_free(struct ambitv_processor_component *component)
 {
 	free(component->priv);
 }
 
-struct ambitv_processor_component*
-ambitv_edge_color_processor_create(const char* name, int argc, char** argv)
+struct ambitv_processor_component *
+ambitv_edge_color_processor_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_processor_component* edge_processor = ambitv_processor_component_create(name);
+	struct ambitv_processor_component *edge_processor = ambitv_processor_component_create(name);
 
 	if (NULL != edge_processor)
 	{
-		struct ambitv_edge_processor_priv* priv = (struct ambitv_edge_processor_priv*) malloc(
+		struct ambitv_edge_processor_priv *priv = (struct ambitv_edge_processor_priv *) malloc(
 				sizeof(struct ambitv_edge_processor_priv));
 		memset(priv, 9, sizeof(struct ambitv_edge_processor_priv));
 
-		edge_processor->priv = (void*) priv;
+		edge_processor->priv = (void *) priv;
 
 		priv->boxsize[0] = DEFAULT_BOX_WIDTH;
 		priv->boxsize[1] = DEFAULT_BOX_HEIGHT;
@@ -231,6 +232,6 @@ ambitv_edge_color_processor_create(const char* name, int argc, char** argv)
 
 	return edge_processor;
 
-	errReturn: ambitv_processor_component_free(edge_processor);
+errReturn: ambitv_processor_component_free(edge_processor);
 	return NULL;
 }

@@ -56,7 +56,7 @@ struct ambitv_main_conf
 	int program_idx;
 	int gpio_idx;
 	int portno;
-	char* config_path;
+	char *config_path;
 
 	int cur_prog, ambitv_on, gpio_fd;
 	int button_cnt;
@@ -77,27 +77,27 @@ static void ambitv_signal_handler(int signum)
 	conf.running = 0;
 }
 
-static int ambitv_handle_config_block(const char* name, int argc, char** argv)
+static int ambitv_handle_config_block(const char *name, int argc, char **argv)
 {
 	int ret = 0;
 
 	switch (name[0])
 	{
-	case '&':
-		ret = ambitv_register_program_for_name(&name[1], argc, argv);
-		break;
+		case '&':
+			ret = ambitv_register_program_for_name(&name[1], argc, argv);
+			break;
 
-	default:
-		ret = ambitv_register_component_for_name(name, argc, argv);
-		break;
+		default:
+			ret = ambitv_register_component_for_name(name, argc, argv);
+			break;
 	}
 
 	return ret;
 }
 
-static long ambitv_millis_between(struct timeval* now, struct timeval* earlier)
+static long ambitv_millis_between(struct timeval *now, struct timeval *earlier)
 {
-	return (long) ((now->tv_sec - earlier->tv_sec) * 1000) + (long) ((now->tv_usec - earlier->tv_usec) / 1000);
+	return (long)((now->tv_sec - earlier->tv_sec) * 1000) + (long)((now->tv_usec - earlier->tv_usec) / 1000);
 }
 
 static int ambitv_cycle_next_program()
@@ -107,7 +107,7 @@ static int ambitv_cycle_next_program()
 	if (!conf.ambitv_on)
 	{
 		ambitv_log(ambitv_log_info,
-		LOGNAME "not cycling program, because state is paused.\n");
+			LOGNAME "not cycling program, because state is paused.\n");
 
 		return 0;
 	}
@@ -119,7 +119,7 @@ static int ambitv_cycle_next_program()
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to switch to program '%s', aborting...\n",
-				ambitv_programs[conf.cur_prog]->name);
+			ambitv_programs[conf.cur_prog]->name);
 	}
 	else
 	{
@@ -140,14 +140,14 @@ static int ambitv_toggle_paused()
 		ret = ambitv_program_run(ambitv_programs[conf.cur_prog]);
 		if (ret < 0)
 			ambitv_log(ambitv_log_error, LOGNAME "failed to start program '%s'.\n",
-					ambitv_programs[conf.cur_prog]->name);
+				ambitv_programs[conf.cur_prog]->name);
 	}
 	else
 	{
 		ret = ambitv_program_stop_current();
 		if (ret < 0)
 			ambitv_log(ambitv_log_error, LOGNAME "failed to stop program '%s'.\n",
-					ambitv_programs[conf.cur_prog]->name);
+				ambitv_programs[conf.cur_prog]->name);
 	}
 
 	ambitv_log(ambitv_log_info, LOGNAME "now: %s\n", conf.ambitv_on ? "running" : "paused");
@@ -185,8 +185,8 @@ static int ambitv_runloop()
 	}
 	if (strlen(buffer))
 	{
-		struct ambitv_sink_component* scomponent;
-		struct ambitv_processor_component* pcomponent;
+		struct ambitv_sink_component *scomponent;
+		struct ambitv_processor_component *pcomponent;
 
 		if ((bufferptr = strstr(buffer, "Connection: close")) != NULL)
 			bb = true;
@@ -223,9 +223,9 @@ static int ambitv_runloop()
 					sscanf(valpos, "%lf", &newval);
 					sscanf(valpos, "%s", newrgb);
 				}
-				scomponent = (struct ambitv_sink_component*) ambitv_component_find_in_group("led-", 1);
+				scomponent = (struct ambitv_sink_component *) ambitv_component_find_in_group("led-", 1);
 				if (scomponent == NULL)
-					scomponent = (struct ambitv_sink_component*) ambitv_component_find_in_group("led-", 0);
+					scomponent = (struct ambitv_sink_component *) ambitv_component_find_in_group("led-", 0);
 				if (scomponent != NULL)
 				{
 					if ((done = ((bufferptr = strstr(buffer, "mode=")) != NULL)) != 0)
@@ -237,7 +237,7 @@ static int ambitv_runloop()
 								ret = ambitv_program_run(ambitv_programs[(int) newval]);
 								if (ret < 0)
 									ambitv_log(ambitv_log_error, LOGNAME "failed to start program '%s'.\n",
-											ambitv_programs[(int) newval]->name);
+										ambitv_programs[(int) newval]->name);
 								else
 									conf.cur_prog = (int) newval;
 							}
@@ -246,7 +246,7 @@ static int ambitv_runloop()
 								ret = ambitv_program_stop_current();
 								if (ret < 0)
 									ambitv_log(ambitv_log_error, LOGNAME "failed to stop program '%s'.\n",
-											ambitv_programs[conf.cur_prog]->name);
+										ambitv_programs[conf.cur_prog]->name);
 							}
 						}
 						else
@@ -287,7 +287,7 @@ static int ambitv_runloop()
 									if (newval >= 0 && newval <= 100)
 									{
 										ret = scomponent->f_set_output_to_rgb(scomponent,
-												ambitv_special_sinkcommand_gamma_red + idx, (int) (newval * 100.0), 0,
+												ambitv_special_sinkcommand_gamma_red + idx, (int)(newval * 100.0), 0,
 												0);
 									}
 								}
@@ -307,9 +307,9 @@ static int ambitv_runloop()
 				}
 				if (!done)
 				{
-					pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("audio-proc", 1);
+					pcomponent = (struct ambitv_processor_component *) ambitv_component_find_in_group("audio-proc", 1);
 					if (pcomponent == NULL)
-						pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("audio-proc", 0);
+						pcomponent = (struct ambitv_processor_component *) ambitv_component_find_in_group("audio-proc", 0);
 					if (pcomponent != NULL)
 					{
 						if ((done = ((bufferptr = strstr(buffer, "typey=")) != NULL)) != 0)
@@ -388,16 +388,16 @@ static int ambitv_runloop()
 				}
 				if (!done)
 				{
-					pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("web", 1);
+					pcomponent = (struct ambitv_processor_component *) ambitv_component_find_in_group("web", 1);
 					if (pcomponent == NULL)
-						pcomponent = (struct ambitv_processor_component*) ambitv_component_find_in_group("web", 0);
+						pcomponent = (struct ambitv_processor_component *) ambitv_component_find_in_group("web", 0);
 					if (pcomponent != NULL)
 					{
 						if ((done = ((bufferptr = strstr(buffer, "rgb=")) != NULL)) != 0)
 						{
 							if (readval)
 							{
-								int r,g,b;
+								int r, g, b;
 								if ((sscanf(newrgb, "%2X%2X%2X", &r, &g, &b) == 3))
 								{
 									ret = pcomponent->f_consume_frame(pcomponent, NULL, 1, r, g, b);
@@ -419,16 +419,16 @@ static int ambitv_runloop()
 		{
 			switch (ret)
 			{
-			case -1:
-			case 0:
-				sprintf(buffer, "%s", (ret < 0) ? "ERR\n" : "OK \n");
-				break;
-			case 1:
-				sprintf(buffer + strlen(buffer), "\r\n");
-				break;
-			default:
-				*buffer = 0;
-				break;
+				case -1:
+				case 0:
+					sprintf(buffer, "%s", (ret < 0) ? "ERR\n" : "OK \n");
+					break;
+				case 1:
+					sprintf(buffer + strlen(buffer), "\r\n");
+					break;
+				default:
+					*buffer = 0;
+					break;
 			}
 			if (*buffer)
 				netif_send(newsockfd, buffer, 0, NETIF_MODE_SINGLE, bb);
@@ -446,7 +446,7 @@ static int ambitv_runloop()
 		if (EINTR != errno && EWOULDBLOCK != errno)
 		{
 			ambitv_log(ambitv_log_error, LOGNAME "error during select(): %d (%s)\n",
-			errno, strerror(errno));
+				errno, strerror(errno));
 			ret = 0;
 		}
 
@@ -462,7 +462,7 @@ static int ambitv_runloop()
 			if (EINTR != errno && EWOULDBLOCK != errno)
 			{
 				ambitv_log(ambitv_log_error, LOGNAME "error during read() on stdin: %d (%s)\n",
-				errno, strerror(errno));
+					errno, strerror(errno));
 			}
 			else
 				ret = 0;
@@ -474,26 +474,27 @@ static int ambitv_runloop()
 
 		switch (c)
 		{
-		case 0x20:
-		{ // space
-			ret = ambitv_cycle_next_program();
-			if (ret < 0)
-				goto finishLoop;
+			case 0x20:
+			{
+				// space
+				ret = ambitv_cycle_next_program();
+				if (ret < 0)
+					goto finishLoop;
 
-			break;
-		}
+				break;
+			}
 
-		case 't':
-		{
-			ret = ambitv_toggle_paused();
-			if (ret < 0)
-				goto finishLoop;
+			case 't':
+			{
+				ret = ambitv_toggle_paused();
+				if (ret < 0)
+					goto finishLoop;
 
-			break;
-		}
+				break;
+			}
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -563,41 +564,42 @@ static int ambitv_runloop()
 		}
 	}
 
-	finishLoop: return ret;
+finishLoop: return ret;
 }
 
-static void ambitv_usage(const char* name)
+static void ambitv_usage(const char *name)
 {
-	const char* p = name + strlen(name);
+	const char *p = name + strlen(name);
 	while (p != name && *p != '/')
 		p--;
 	if ('/' == *p)
 		p++;
 
 	printf(
-			"usage: %s [options]\n"
-					"\n"
-					"options:\n"
-					"\t-b/--button-gpio [i]     gpio pin to use as physical button. function disabled if i < 0. (default: -1).\n"
-					"\t-f/--file [path]         use the configuration file at [path] (default: %s).\n"
-					"\t-h,--help                display this help text.\n"
-					"\t-p,--program [i]         run the [i]-th program from the configuration file on start-up.\n"
-					"\t-s,--socketport [i]      set the socket port to communicate with %s\n"
-					"\n", p, DEFAULT_CONFIG_PATH, p);
+		"usage: %s [options]\n"
+		"\n"
+		"options:\n"
+		"\t-b/--button-gpio [i]     gpio pin to use as physical button. function disabled if i < 0. (default: -1).\n"
+		"\t-f/--file [path]         use the configuration file at [path] (default: %s).\n"
+		"\t-h,--help                display this help text.\n"
+		"\t-p,--program [i]         run the [i]-th program from the configuration file on start-up.\n"
+		"\t-s,--socketport [i]      set the socket port to communicate with %s\n"
+		"\n", p, DEFAULT_CONFIG_PATH, p);
 }
 
-static int ambitv_main_configure(int argc, char** argv)
+static int ambitv_main_configure(int argc, char **argv)
 {
 	int c, ret = 0;
 
 	static struct option lopts[] =
 	{
-	{ "button-gpio", required_argument, 0, 'b' },
-	{ "file", required_argument, 0, 'f' },
-	{ "help", no_argument, 0, 'h' },
-	{ "program", required_argument, 0, 'p' },
-	{ "socketport", required_argument, 0, 's' },
-	{ NULL, 0, 0, 0 } };
+		{ "button-gpio", required_argument, 0, 'b' },
+		{ "file", required_argument, 0, 'f' },
+		{ "help", no_argument, 0, 'h' },
+		{ "program", required_argument, 0, 'p' },
+		{ "socketport", required_argument, 0, 's' },
+		{ NULL, 0, 0, 0 }
+	};
 	while (1)
 	{
 		c = getopt_long(argc, argv, "b:f:hp:", lopts, NULL);
@@ -607,78 +609,78 @@ static int ambitv_main_configure(int argc, char** argv)
 
 		switch (c)
 		{
-		case 'f':
-		{
-			if (NULL != optarg)
+			case 'f':
 			{
-				conf.config_path = strdup(optarg);
-			}
-			break;
-		}
-
-		case 's':
-		{
-			if (NULL != optarg)
-			{
-				conf.portno = atoi(optarg);
-			}
-			break;
-		}
-
-		case 'b':
-		{
-			if (NULL != optarg)
-			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
-
-				if ('\0' == *eptr && nbuf > 0)
+				if (NULL != optarg)
 				{
-					conf.gpio_idx = (int) nbuf;
+					conf.config_path = strdup(optarg);
 				}
-				else
+				break;
+			}
+
+			case 's':
+			{
+				if (NULL != optarg)
 				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					conf.portno = atoi(optarg);
+				}
+				break;
+			}
+
+			case 'b':
+			{
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
+
+					if ('\0' == *eptr && nbuf > 0)
+					{
+						conf.gpio_idx = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					ambitv_usage(argv[0]);
-					return -1;
+						ambitv_usage(argv[0]);
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case 'p':
-		{
-			if (NULL != optarg)
+			case 'p':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf >= 0)
-				{
-					conf.program_idx = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf >= 0)
+					{
+						conf.program_idx = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					ambitv_usage(argv[0]);
-					return -1;
+						ambitv_usage(argv[0]);
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
+			case 'h':
+			{
+				ambitv_usage(argv[0]);
+				exit(0);
+			}
 
-		case 'h':
-		{
-			ambitv_usage(argv[0]);
-			exit(0);
-		}
-
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -692,10 +694,10 @@ static int ambitv_main_configure(int argc, char** argv)
 	return ret;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	int ret = 0, i;
-	struct ambitv_conf_parser* parser;
+	struct ambitv_conf_parser *parser;
 	struct termios tt;
 	unsigned long tt_orig;
 
@@ -703,11 +705,11 @@ int main(int argc, char** argv)
 	signal(SIGTERM, ambitv_signal_handler);
 
 	printf("\n"
-			"*********************************************************\n"
-			"*  ambi-tv: diy ambient lighting for your screen or tv  *\n"
-			"*                                         (c) @gkaindl  *\n"
-			"*********************************************************\n"
-			"\n");
+		"*********************************************************\n"
+		"*  ambi-tv: diy ambient lighting for your screen or tv  *\n"
+		"*                                         (c) @gkaindl  *\n"
+		"*********************************************************\n"
+		"\n");
 
 	conf.program_idx = 0;
 	conf.gpio_idx = -1;
@@ -768,8 +770,8 @@ int main(int argc, char** argv)
 	if (conf.program_idx >= ambitv_num_programs)
 	{
 		ambitv_log(ambitv_log_error,
-		LOGNAME "program at index %d requested, but only %d programs available. aborting...\n", conf.program_idx,
-				ambitv_num_programs);
+			LOGNAME "program at index %d requested, but only %d programs available. aborting...\n", conf.program_idx,
+			ambitv_num_programs);
 		goto errReturn;
 	}
 
@@ -780,7 +782,7 @@ int main(int argc, char** argv)
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to start initial program '%s', aborting...\n",
-				ambitv_programs[conf.cur_prog]->name);
+			ambitv_programs[conf.cur_prog]->name);
 		goto errReturn;
 	}
 
@@ -805,13 +807,13 @@ int main(int argc, char** argv)
 		clilen = sizeof(cli_addr);
 	}
 	ambitv_log(ambitv_log_info,
-	LOGNAME "************* start-up complete\n"
-	"\tpress <space> to cycle between programs.\n"
-	"\tpress 't' to toggle pause.\n");
+		LOGNAME "************* start-up complete\n"
+		"\tpress <space> to cycle between programs.\n"
+		"\tpress 't' to toggle pause.\n");
 	if (conf.gpio_idx >= 0)
 	{
 		ambitv_log(ambitv_log_info,
-				"\tphysical (gpio) button: click to pause/resume, double-click to cycle between programs.\n");
+			"\tphysical (gpio) button: click to pause/resume, double-click to cycle between programs.\n");
 	}
 
 	while (conf.running && ambitv_runloop() >= 0)
@@ -822,11 +824,11 @@ int main(int argc, char** argv)
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to stop program '%s' before exiting.\n",
-				ambitv_programs[conf.cur_prog]->name);
+			ambitv_programs[conf.cur_prog]->name);
 		goto errReturn;
 	}
 
-	errReturn: if (sockfd > -1)
+errReturn: if (sockfd > -1)
 		close(sockfd);
 
 	tt.c_lflag = tt_orig;

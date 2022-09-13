@@ -45,8 +45,8 @@
 
 struct v4l2_grab
 {
-	struct ambitv_source_component* source_component;
-	char* dev_name;
+	struct ambitv_source_component *source_component;
+	char *dev_name;
 	int req_buffers;
 	int crop[4];   // top, right, bottom, left
 	int auto_crop_luminance;
@@ -54,14 +54,14 @@ struct v4l2_grab
 	int fd;
 
 	unsigned num_buffers;
-	void* buffers;
+	void *buffers;
 	int width, height, bytesperline, format;
 	enum ambitv_video_format fmt;
 };
 
 struct vid_buffer
 {
-	void* start;
+	void *start;
 	size_t length;
 };
 
@@ -72,12 +72,13 @@ static int xioctl(int fh, int request, void *arg)
 	do
 	{
 		r = ioctl(fh, request, arg);
-	} while (-1 == r && EINTR == errno);
+	}
+	while (-1 == r && EINTR == errno);
 
 	return r;
 }
 
-static int ambitv_v4l2_grab_open_device(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_open_device(struct v4l2_grab *grabber)
 {
 	int ret = 0;
 	struct stat st;
@@ -86,7 +87,7 @@ static int ambitv_v4l2_grab_open_device(struct v4l2_grab* grabber)
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to stat '%s' : %d (%s).\n", grabber->dev_name, errno,
-				strerror(errno));
+			strerror(errno));
 		return ret;
 	}
 
@@ -101,7 +102,7 @@ static int ambitv_v4l2_grab_open_device(struct v4l2_grab* grabber)
 	if (grabber->fd < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to open '%s': %d (%s).\n", grabber->dev_name, errno,
-				strerror(errno));
+			strerror(errno));
 
 		ret = -errno;
 	}
@@ -109,7 +110,7 @@ static int ambitv_v4l2_grab_open_device(struct v4l2_grab* grabber)
 	return ret;
 }
 
-static int ambitv_v4l2_grab_close_device(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_close_device(struct v4l2_grab *grabber)
 {
 	int ret = 0;
 
@@ -121,7 +122,7 @@ static int ambitv_v4l2_grab_close_device(struct v4l2_grab* grabber)
 	return ret;
 }
 
-static void ambitv_v4l2_grab_free_buffers(struct v4l2_grab* grabber)
+static void ambitv_v4l2_grab_free_buffers(struct v4l2_grab *grabber)
 {
 	if (NULL != grabber->buffers)
 	{
@@ -130,7 +131,7 @@ static void ambitv_v4l2_grab_free_buffers(struct v4l2_grab* grabber)
 	}
 }
 
-static int ambitv_v4l2_grab_init_mmap(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_init_mmap(struct v4l2_grab *grabber)
 {
 	int ret;
 	struct v4l2_requestbuffers req;
@@ -161,7 +162,7 @@ static int ambitv_v4l2_grab_init_mmap(struct v4l2_grab* grabber)
 		return -ENOMEM;
 	}
 
-	struct vid_buffer* buffers = (struct vid_buffer*) grabber->buffers;
+	struct vid_buffer *buffers = (struct vid_buffer *) grabber->buffers;
 
 	for (grabber->num_buffers = 0; grabber->num_buffers < req.count; grabber->num_buffers++)
 	{
@@ -181,8 +182,8 @@ static int ambitv_v4l2_grab_init_mmap(struct v4l2_grab* grabber)
 		}
 		buffers[grabber->num_buffers].length = buf.length;
 		buffers[grabber->num_buffers].start = mmap(NULL, buf.length,
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED, grabber->fd, buf.m.offset);
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED, grabber->fd, buf.m.offset);
 
 		if (MAP_FAILED == buffers[grabber->num_buffers].start)
 		{
@@ -193,12 +194,12 @@ static int ambitv_v4l2_grab_init_mmap(struct v4l2_grab* grabber)
 
 	return 0;
 
-	fail_buf: ambitv_v4l2_grab_free_buffers(grabber);
+fail_buf: ambitv_v4l2_grab_free_buffers(grabber);
 
 	return -ENODEV;
 }
 
-static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_init_device(struct v4l2_grab *grabber)
 {
 	int ret;
 	struct v4l2_capability cap;
@@ -229,7 +230,7 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 
 	vid_fmt.fmt.pix.width = grabber->width;
 	vid_fmt.fmt.pix.height = grabber->height;
-	vid_fmt.fmt.pix.pixelformat = (grabber->format)?V4L2_PIX_FMT_YUYV:V4L2_PIX_FMT_MJPEG;
+	vid_fmt.fmt.pix.pixelformat = (grabber->format) ? V4L2_PIX_FMT_YUYV : V4L2_PIX_FMT_MJPEG;
 
 	ret = xioctl(grabber->fd, VIDIOC_S_FMT, &vid_fmt);
 
@@ -254,16 +255,16 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 	grabber->fmt = v4l2_to_ambitv_video_format(vid_fmt.fmt.pix.pixelformat);
 
 	ambitv_log(ambitv_log_info, LOGNAME "video format: %ux%u (%s %d bpl).\n", vid_fmt.fmt.pix.width, vid_fmt.fmt.pix.height,
-			v4l2_string_from_fourcc(vid_fmt.fmt.pix.pixelformat), vid_fmt.fmt.pix.bytesperline);
+		v4l2_string_from_fourcc(vid_fmt.fmt.pix.pixelformat), vid_fmt.fmt.pix.bytesperline);
 
 	return ambitv_v4l2_grab_init_mmap(grabber);
 }
 
-static int ambitv_v4l2_grab_uninit_device(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_uninit_device(struct v4l2_grab *grabber)
 {
 	unsigned int i;
 	int ret;
-	struct vid_buffer* buffers = (struct vid_buffer*) grabber->buffers;
+	struct vid_buffer *buffers = (struct vid_buffer *) grabber->buffers;
 
 	for (i = 0; i < grabber->num_buffers; i++)
 	{
@@ -271,7 +272,7 @@ static int ambitv_v4l2_grab_uninit_device(struct v4l2_grab* grabber)
 		if (ret < 0)
 		{
 			ambitv_log(ambitv_log_error, LOGNAME "failed to unmap buffer: %d (%s).\n",
-			errno, strerror(errno));
+				errno, strerror(errno));
 			return -errno;
 		}
 	}
@@ -281,7 +282,7 @@ static int ambitv_v4l2_grab_uninit_device(struct v4l2_grab* grabber)
 	return 0;
 }
 
-static int ambitv_v4l2_grab_start_streaming(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_start_streaming(struct v4l2_grab *grabber)
 {
 	int i, ret;
 	enum v4l2_buf_type type;
@@ -310,14 +311,14 @@ static int ambitv_v4l2_grab_start_streaming(struct v4l2_grab* grabber)
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to start video streaming: %d (%s).\n",
-		errno, strerror(errno));
+			errno, strerror(errno));
 		return -EINVAL;
 	}
 
 	return 0;
 }
 
-static int ambitv_v4l2_grab_stop_streaming(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_stop_streaming(struct v4l2_grab *grabber)
 {
 	int ret;
 	enum v4l2_buf_type type;
@@ -328,20 +329,20 @@ static int ambitv_v4l2_grab_stop_streaming(struct v4l2_grab* grabber)
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to stop video streaming: %d (%s).\n",
-		errno, strerror(errno));
+			errno, strerror(errno));
 		ret = -errno;
 	}
 
 	return ret;
 }
 
-static int ambitv_v4l2_grab_read_frame(struct v4l2_grab* grabber)
+static int ambitv_v4l2_grab_read_frame(struct v4l2_grab *grabber)
 {
 	struct v4l2_buffer buf;
 	int ret, ewidth, eheight, ebpl, auto_crop[4] =
 	{ 0, 0, 0, 0 };
-	unsigned char* eframe;
-	struct vid_buffer* buffers = (struct vid_buffer*) grabber->buffers;
+	unsigned char *eframe;
+	struct vid_buffer *buffers = (struct vid_buffer *) grabber->buffers;
 
 	memset(&buf, 0, sizeof(buf));
 
@@ -353,14 +354,14 @@ static int ambitv_v4l2_grab_read_frame(struct v4l2_grab* grabber)
 	{
 		switch (errno)
 		{
-		case EIO:
-		case EAGAIN:
-			return 0;
+			case EIO:
+			case EAGAIN:
+				return 0;
 
-		default:
-			ambitv_log(ambitv_log_error, LOGNAME "failed to dequeue a frame: %d (%s).\n",
-			errno, strerror(errno));
-			return -errno;
+			default:
+				ambitv_log(ambitv_log_error, LOGNAME "failed to dequeue a frame: %d (%s).\n",
+					errno, strerror(errno));
+				return -errno;
 
 		}
 	}
@@ -372,63 +373,63 @@ static int ambitv_v4l2_grab_read_frame(struct v4l2_grab* grabber)
 	}
 
 	if (grabber->auto_crop_luminance >= 0
-			&& ambitv_video_fmt_detect_crop_for_frame(&auto_crop[0], grabber->auto_crop_luminance,
-					buffers[buf.index].start, grabber->width, grabber->height, grabber->bytesperline, grabber->fmt) < 0)
+		&& ambitv_video_fmt_detect_crop_for_frame(&auto_crop[0], grabber->auto_crop_luminance,
+			buffers[buf.index].start, grabber->width, grabber->height, grabber->bytesperline, grabber->fmt) < 0)
 		memset(auto_crop, 0, sizeof(int) * 4);
 
 	// apply crop
 	switch (grabber->fmt)
 	{
-	case ambitv_video_format_yuyv:
-	{
-		int cx = (grabber->crop[3] & ~1) + auto_crop[3], cy = grabber->crop[0] + auto_crop[0];
+		case ambitv_video_format_yuyv:
+		{
+			int cx = (grabber->crop[3] & ~1) + auto_crop[3], cy = grabber->crop[0] + auto_crop[0];
 
-		ebpl = grabber->bytesperline ? grabber->bytesperline : 2 * grabber->width;
-		eframe = buffers[buf.index].start + cy * ebpl + cx * 2;
-		ewidth = grabber->width - grabber->crop[1] - grabber->crop[3] - auto_crop[1] - auto_crop[3];
-		eheight = grabber->height - grabber->crop[0] - grabber->crop[2] - auto_crop[0] - auto_crop[2];
-		break;
-	}
+			ebpl = grabber->bytesperline ? grabber->bytesperline : 2 * grabber->width;
+			eframe = buffers[buf.index].start + cy * ebpl + cx * 2;
+			ewidth = grabber->width - grabber->crop[1] - grabber->crop[3] - auto_crop[1] - auto_crop[3];
+			eheight = grabber->height - grabber->crop[0] - grabber->crop[2] - auto_crop[0] - auto_crop[2];
+			break;
+		}
 
-	case ambitv_video_format_uyvy:
-	{
-		int cx = (grabber->crop[3] & ~1) + auto_crop[3], cy = grabber->crop[0] + auto_crop[0];
-         
-		ebpl     = grabber->bytesperline ? grabber->bytesperline : 2*grabber->width;
-		eframe   = buffers[buf.index].start + cy * ebpl + cx * 2;
-		ewidth   = grabber->width - grabber->crop[1] - grabber->crop[3] - auto_crop[1] - auto_crop[3];
-		eheight  = grabber->height - grabber->crop[0] - grabber->crop[2] - auto_crop[0] - auto_crop[2];
-		break;
-	}
-	default:
-	{
-		eframe = NULL;
-		ewidth = 0;
-		eheight = 0;
-		ebpl = 0;
-		break;
-	}
+		case ambitv_video_format_uyvy:
+		{
+			int cx = (grabber->crop[3] & ~1) + auto_crop[3], cy = grabber->crop[0] + auto_crop[0];
+
+			ebpl     = grabber->bytesperline ? grabber->bytesperline : 2 * grabber->width;
+			eframe   = buffers[buf.index].start + cy * ebpl + cx * 2;
+			ewidth   = grabber->width - grabber->crop[1] - grabber->crop[3] - auto_crop[1] - auto_crop[3];
+			eheight  = grabber->height - grabber->crop[0] - grabber->crop[2] - auto_crop[0] - auto_crop[2];
+			break;
+		}
+		default:
+		{
+			eframe = NULL;
+			ewidth = 0;
+			eheight = 0;
+			ebpl = 0;
+			break;
+		}
 	}
 
 	ambitv_source_component_distribute_to_active_processors(grabber->source_component, eframe, ewidth, eheight, ebpl,
-			grabber->fmt);
+		grabber->fmt);
 	ret = xioctl(grabber->fd, VIDIOC_QBUF, &buf);
 	if (ret < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to enqueue a frame: %d (%s).\n",
-		errno, strerror(errno));
+			errno, strerror(errno));
 	}
 
 	return ret;
 }
 
-static int ambitv_v4l2_grab_capture_loop_iteration(struct ambitv_source_component* grabber)
+static int ambitv_v4l2_grab_capture_loop_iteration(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 	fd_set fds;
 	struct timeval tv;
 
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) grabber->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
@@ -446,7 +447,7 @@ static int ambitv_v4l2_grab_capture_loop_iteration(struct ambitv_source_componen
 			ret = 0;
 
 		ambitv_log(ambitv_log_error, LOGNAME "failed to select() a frame: %d (%s).\n",
-		errno, strerror(errno));
+			errno, strerror(errno));
 	}
 	else if (0 == ret)
 	{
@@ -461,11 +462,11 @@ static int ambitv_v4l2_grab_capture_loop_iteration(struct ambitv_source_componen
 	return ret;
 }
 
-int ambitv_v4l2_grab_start(struct ambitv_source_component* grabber)
+int ambitv_v4l2_grab_start(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) grabber->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
@@ -489,18 +490,18 @@ int ambitv_v4l2_grab_start(struct ambitv_source_component* grabber)
 
 	return ret;
 
-	fail_streaming: ambitv_v4l2_grab_uninit_device(grab_priv);
+fail_streaming: ambitv_v4l2_grab_uninit_device(grab_priv);
 
-	fail_init: ambitv_v4l2_grab_close_device(grab_priv);
+fail_init: ambitv_v4l2_grab_close_device(grab_priv);
 
-	fail_open: return ret;
+fail_open: return ret;
 }
 
-int ambitv_v4l2_grab_stop(struct ambitv_source_component* grabber)
+int ambitv_v4l2_grab_stop(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) grabber->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
@@ -520,30 +521,31 @@ int ambitv_v4l2_grab_stop(struct ambitv_source_component* grabber)
 
 	ret = ambitv_v4l2_grab_close_device(grab_priv);
 
-	fail_return: return ret;
+fail_return: return ret;
 }
 
-static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, int argc, char** argv)
+static int ambitv_v4l2_grab_configure(struct ambitv_source_component *grabber, int argc, char **argv)
 {
 	int c, ret = 0;
 
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) grabber->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
 	static struct option lopts[] =
 	{
-	{ "video-device", required_argument, 0, 'd' },
-	{ "video-width", required_argument, 0, 'w' },
-	{ "video-height", required_argument, 0, 'h' },
-	{ "video-format", required_argument, 0, 'n' },
-	{ "buffers", required_argument, 0, 'b' },
-	{ "crop-top", required_argument, 0, '0' },
-	{ "crop-right", required_argument, 0, '1' },
-	{ "crop-bottom", required_argument, 0, '2' },
-	{ "crop-left", required_argument, 0, '3' },
-	{ "autocrop-luminance-threshold", required_argument, 0, 'a' },
-	{ NULL, 0, 0, 0 } };
+		{ "video-device", required_argument, 0, 'd' },
+		{ "video-width", required_argument, 0, 'w' },
+		{ "video-height", required_argument, 0, 'h' },
+		{ "video-format", required_argument, 0, 'n' },
+		{ "buffers", required_argument, 0, 'b' },
+		{ "crop-top", required_argument, 0, '0' },
+		{ "crop-right", required_argument, 0, '1' },
+		{ "crop-bottom", required_argument, 0, '2' },
+		{ "crop-left", required_argument, 0, '3' },
+		{ "autocrop-luminance-threshold", required_argument, 0, 'a' },
+		{ NULL, 0, 0, 0 }
+	};
 
 	while (1)
 	{
@@ -554,142 +556,142 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 
 		switch (c)
 		{
-		case 'd':
-		{
-			if (NULL != optarg)
+			case 'd':
 			{
-				if (NULL != grab_priv->dev_name)
-					free(grab_priv->dev_name);
-
-				grab_priv->dev_name = strdup(optarg);
-			}
-			break;
-		}
-
-		case 'n':
-		{
-			if (NULL != optarg)
-			{
-				grab_priv->format = (strstr(optarg, "YUYV") != NULL);
-			}
-			break;
-		}
-
-		case 'b':
-		{
-			if (NULL != optarg)
-			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
-
-				if ('\0' == *eptr)
+				if (NULL != optarg)
 				{
-					grab_priv->req_buffers = (int) nbuf;
+					if (NULL != grab_priv->dev_name)
+						free(grab_priv->dev_name);
+
+					grab_priv->dev_name = strdup(optarg);
 				}
-				else
+				break;
+			}
+
+			case 'n':
+			{
+				if (NULL != optarg)
 				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					grab_priv->format = (strstr(optarg, "YUYV") != NULL);
+				}
+				break;
+			}
+
+			case 'b':
+			{
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
+
+					if ('\0' == *eptr)
+					{
+						grab_priv->req_buffers = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		{
-			if (NULL != optarg)
+			case '0':
+			case '1':
+			case '2':
+			case '3':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf >= 0)
-				{
-					grab_priv->crop[c - '0'] = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf >= 0)
+					{
+						grab_priv->crop[c - '0'] = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case 'a':
-		{
-			if (NULL != optarg)
+			case 'a':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr)
-				{
-					grab_priv->auto_crop_luminance = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr)
+					{
+						grab_priv->auto_crop_luminance = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case 'w':
-		{
-			if (NULL != optarg)
+			case 'w':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf >= 0)
-				{
-					grab_priv->width = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf >= 0)
+					{
+						grab_priv->width = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		case 'h':
-		{
-			if (NULL != optarg)
+			case 'h':
 			{
-				char* eptr = NULL;
-				long nbuf = strtol(optarg, &eptr, 10);
+				if (NULL != optarg)
+				{
+					char *eptr = NULL;
+					long nbuf = strtol(optarg, &eptr, 10);
 
-				if ('\0' == *eptr && nbuf >= 0)
-				{
-					grab_priv->height = (int) nbuf;
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
+					if ('\0' == *eptr && nbuf >= 0)
+					{
+						grab_priv->height = (int) nbuf;
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error, LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2],
 							optarg);
-					return -1;
+						return -1;
+					}
 				}
+
+				break;
 			}
 
-			break;
-		}
-
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -702,26 +704,26 @@ static int ambitv_v4l2_grab_configure(struct ambitv_source_component* grabber, i
 	return ret;
 }
 
-static void ambitv_v4l2_grab_print_configuration(struct ambitv_source_component* component)
+static void ambitv_v4l2_grab_print_configuration(struct ambitv_source_component *component)
 {
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) component->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) component->priv;
 
 	ambitv_log(ambitv_log_info, "\tdevice name:              %s\n"
-			"\tvideo-width:              %d\n"
-			"\tvideo-height:             %d\n"
-			"\tvideo-format:             %s\n"
-			"\tbuffers:                  %d\n"
-			"\tcrop-top:                 %d\n"
-			"\tcrop-right:               %d\n"
-			"\tcrop-bottom:              %d\n"
-			"\tcrop-left:                %d\n"
-			"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, grab_priv->width, grab_priv->height, (grab_priv->format)?"YUYV":"MJPEG",grab_priv->req_buffers, grab_priv->crop[0],
-			grab_priv->crop[1], grab_priv->crop[2], grab_priv->crop[3], grab_priv->auto_crop_luminance);
+		"\tvideo-width:              %d\n"
+		"\tvideo-height:             %d\n"
+		"\tvideo-format:             %s\n"
+		"\tbuffers:                  %d\n"
+		"\tcrop-top:                 %d\n"
+		"\tcrop-right:               %d\n"
+		"\tcrop-bottom:              %d\n"
+		"\tcrop-left:                %d\n"
+		"\tauto-crop luma threshold: %d\n", grab_priv->dev_name, grab_priv->width, grab_priv->height, (grab_priv->format) ? "YUYV" : "MJPEG", grab_priv->req_buffers, grab_priv->crop[0],
+		grab_priv->crop[1], grab_priv->crop[2], grab_priv->crop[3], grab_priv->auto_crop_luminance);
 }
 
-void ambitv_v4l2_grab_free(struct ambitv_source_component* component)
+void ambitv_v4l2_grab_free(struct ambitv_source_component *component)
 {
-	struct v4l2_grab* grab_priv = (struct v4l2_grab*) component->priv;
+	struct v4l2_grab *grab_priv = (struct v4l2_grab *) component->priv;
 
 	if (NULL != grab_priv)
 	{
@@ -736,14 +738,14 @@ void ambitv_v4l2_grab_free(struct ambitv_source_component* component)
 	}
 }
 
-struct ambitv_source_component*
-ambitv_v4l2_grab_create(const char* name, int argc, char** argv)
+struct ambitv_source_component *
+ambitv_v4l2_grab_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_source_component* grabber = ambitv_source_component_create(name);
+	struct ambitv_source_component *grabber = ambitv_source_component_create(name);
 
 	if (NULL != grabber)
 	{
-		struct v4l2_grab* grab_priv = (struct v4l2_grab*) malloc(sizeof(struct v4l2_grab));
+		struct v4l2_grab *grab_priv = (struct v4l2_grab *) malloc(sizeof(struct v4l2_grab));
 		if (NULL == grab_priv)
 			goto errReturn;
 
@@ -768,7 +770,7 @@ ambitv_v4l2_grab_create(const char* name, int argc, char** argv)
 
 	return grabber;
 
-	errReturn: ambitv_source_component_free(grabber);
+errReturn: ambitv_source_component_free(grabber);
 
 	return NULL;
 }

@@ -15,7 +15,7 @@
  *         provided with the distribution.
  *     3.  Neither the name of the owner nor the names of its contributors may be used to endorse
  *         or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
@@ -54,7 +54,8 @@
 #define RPI_PWM_CHANNELS                         2
 
 
-typedef struct {
+typedef struct
+{
 	uint32_t ctl;
 #define RPI_PWM_CTL_MSEN2                        (1 << 15)
 #define RPI_PWM_CTL_USEF2                        (1 << 13)
@@ -102,12 +103,14 @@ typedef struct {
 #define PWM_PERIPH_PHYS                          (0x7e20c000)
 
 
-typedef struct {
+typedef struct
+{
 	int pinnum;
 	int altnum;
 } pwm_pin_table_t;
 
-typedef struct {
+typedef struct
+{
 	const int count;
 	const pwm_pin_table_t *pins;
 } pwm_pin_tables_t;

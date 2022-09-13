@@ -15,7 +15,7 @@
  *         provided with the distribution.
  *     3.  Neither the name of the owner nor the names of its contributors may be used to endorse
  *         or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
@@ -56,11 +56,11 @@
 /* 3 colors, 8 bits per byte, 3 symbols per bit + 55uS low for reset signal */
 #define LED_RESET_uS                             55
 #define LED_BIT_COUNT(leds, freq)                ((leds * 3 * 8 * 3) + ((LED_RESET_uS * \
-                                                  (freq * 3)) / 1000000))
+			(freq * 3)) / 1000000))
 
 // Pad out to the nearest uint32 + 32-bits for idle low/high times the number of channels
 #define PWM_BYTE_COUNT(leds, freq)               (((((LED_BIT_COUNT(leds, freq) >> 3) & ~0x7) + 4) + 4) * \
-                                                  RPI_PWM_CHANNELS)
+	RPI_PWM_CHANNELS)
 
 #define SYMBOL_HIGH                              0x6  // 1 1 0
 #define SYMBOL_LOW                               0x4  // 1 0 0
@@ -70,10 +70,14 @@
 
 pwm_dev_device_t pwm_dev_device;
 pwm_dev_t pwm_dev =
-{ .freq = TARGET_FREQ, .dmanum = DMA, .channel =
-{ [0] =
-{ .gpionum = GPIO_PIN, .count = 0, .invert = 0, .brightness = 255, }, [1] =
-{ .gpionum = 0, .count = 0, .invert = 0, .brightness = 0, }, }, };
+{
+	.freq = TARGET_FREQ, .dmanum = DMA, .channel =
+	{
+		[0] =
+		{ .gpionum = GPIO_PIN, .count = 0, .invert = 0, .brightness = 255, }, [1] =
+		{ .gpionum = 0, .count = 0, .invert = 0, .brightness = 0, },
+	},
+};
 
 // ARM gcc built-in function, fortunately works when root w/virtual addrs
 void __clear_cache(char *begin, char *end);
@@ -96,7 +100,7 @@ static int max_channel_led_count(pwm_dev_t *pwm_dev)
 		}
 	}
 
-    return max;
+	return max;
 }
 
 /**
@@ -108,43 +112,43 @@ static int max_channel_led_count(pwm_dev_t *pwm_dev)
  */
 static int map_registers(pwm_dev_t *pwm_dev)
 {
-    pwm_dev_device_t *device = pwm_dev->device;
-    const rpi_hw_t *rpi_hw = pwm_dev->rpi_hw;
-    uint32_t base = pwm_dev->rpi_hw->periph_base;
-    uint32_t dma_addr;
+	pwm_dev_device_t *device = pwm_dev->device;
+	const rpi_hw_t *rpi_hw = pwm_dev->rpi_hw;
+	uint32_t base = pwm_dev->rpi_hw->periph_base;
+	uint32_t dma_addr;
 
-    dma_addr = dmanum_to_offset(pwm_dev->dmanum);
-    if (!dma_addr)
-    {
-        return -1;
-    }
-    dma_addr += rpi_hw->periph_base;
+	dma_addr = dmanum_to_offset(pwm_dev->dmanum);
+	if (!dma_addr)
+	{
+		return -1;
+	}
+	dma_addr += rpi_hw->periph_base;
 
-    device->dma = mapmem(dma_addr, sizeof(dma_t));
-    if (!device->dma)
-    {
-        return -1;
-    }
+	device->dma = mapmem(dma_addr, sizeof(dma_t));
+	if (!device->dma)
+	{
+		return -1;
+	}
 
-    device->pwm = mapmem(PWM_OFFSET + base, sizeof(pwm_t));
-    if (!device->pwm)
-    {
-        return -1;
-    }
+	device->pwm = mapmem(PWM_OFFSET + base, sizeof(pwm_t));
+	if (!device->pwm)
+	{
+		return -1;
+	}
 
-    device->gpio = mapmem(GPIO_OFFSET + base, sizeof(gpio_t));
-    if (!device->gpio)
-    {
-        return -1;
-    }
+	device->gpio = mapmem(GPIO_OFFSET + base, sizeof(gpio_t));
+	if (!device->gpio)
+	{
+		return -1;
+	}
 
-    device->cm_pwm = mapmem(CM_PWM_OFFSET + base, sizeof(cm_pwm_t));
-    if (!device->cm_pwm)
-    {
-        return -1;
-    }
+	device->cm_pwm = mapmem(CM_PWM_OFFSET + base, sizeof(cm_pwm_t));
+	if (!device->cm_pwm)
+	{
+		return -1;
+	}
 
-    return 0;
+	return 0;
 }
 
 /**
@@ -156,27 +160,27 @@ static int map_registers(pwm_dev_t *pwm_dev)
  */
 static void unmap_registers(pwm_dev_t *pwm_dev)
 {
-    pwm_dev_device_t *device = pwm_dev->device;
+	pwm_dev_device_t *device = pwm_dev->device;
 
-    if (device->dma)
-    {
-        unmapmem((void *)device->dma, sizeof(dma_t));
-    }
+	if (device->dma)
+	{
+		unmapmem((void *)device->dma, sizeof(dma_t));
+	}
 
-    if (device->pwm)
-    {
-        unmapmem((void *)device->pwm, sizeof(pwm_t));
-    }
+	if (device->pwm)
+	{
+		unmapmem((void *)device->pwm, sizeof(pwm_t));
+	}
 
-    if (device->cm_pwm)
-    {
-        unmapmem((void *)device->cm_pwm, sizeof(cm_pwm_t));
-    }
+	if (device->cm_pwm)
+	{
+		unmapmem((void *)device->cm_pwm, sizeof(cm_pwm_t));
+	}
 
-    if (device->gpio)
-    {
-        unmapmem((void *)device->gpio, sizeof(gpio_t));
-    }
+	if (device->gpio)
+	{
+		unmapmem((void *)device->gpio, sizeof(gpio_t));
+	}
 }
 
 /**
@@ -189,11 +193,11 @@ static void unmap_registers(pwm_dev_t *pwm_dev)
  */
 static uint32_t addr_to_bus(pwm_dev_device_t *device, const volatile void *virt)
 {
-    videocore_mbox_t *mbox = &device->mbox;
+	videocore_mbox_t *mbox = &device->mbox;
 
-    uint32_t offset = (uint8_t *)virt - mbox->virt_addr;
+	uint32_t offset = (uint8_t *)virt - mbox->virt_addr;
 
-    return mbox->bus_addr + offset;
+	return mbox->bus_addr + offset;
 }
 
 /**
@@ -261,37 +265,37 @@ static int setup_pwm(pwm_dev_t *pwm_dev)
 	pwm->dmac = RPI_PWM_DMAC_ENAB | RPI_PWM_DMAC_PANIC(7) | RPI_PWM_DMAC_DREQ(3);
 	usleep(10);
 	pwm->ctl = RPI_PWM_CTL_USEF1 | RPI_PWM_CTL_MODE1 |
-	RPI_PWM_CTL_USEF2 | RPI_PWM_CTL_MODE2;
-    if (pwm_dev->channel[0].invert)
-    {
-        pwm->ctl |= RPI_PWM_CTL_POLA1;
-    }
-    if (pwm_dev->channel[1].invert)
-    {
-        pwm->ctl |= RPI_PWM_CTL_POLA2;
-    }
+		RPI_PWM_CTL_USEF2 | RPI_PWM_CTL_MODE2;
+	if (pwm_dev->channel[0].invert)
+	{
+		pwm->ctl |= RPI_PWM_CTL_POLA1;
+	}
+	if (pwm_dev->channel[1].invert)
+	{
+		pwm->ctl |= RPI_PWM_CTL_POLA2;
+	}
 	usleep(10);
 	pwm->ctl |= RPI_PWM_CTL_PWEN1 | RPI_PWM_CTL_PWEN2;
 
-    // Initialize the DMA control block
-    byte_count = PWM_BYTE_COUNT(maxcount, freq);
-    dma_cb->ti = RPI_DMA_TI_NO_WIDE_BURSTS |  // 32-bit transfers
-                 RPI_DMA_TI_WAIT_RESP |       // wait for write complete
-                 RPI_DMA_TI_DEST_DREQ |       // user peripheral flow control
-                 RPI_DMA_TI_PERMAP(5) |       // PWM peripheral
-                 RPI_DMA_TI_SRC_INC;          // Increment src addr
+	// Initialize the DMA control block
+	byte_count = PWM_BYTE_COUNT(maxcount, freq);
+	dma_cb->ti = RPI_DMA_TI_NO_WIDE_BURSTS |  // 32-bit transfers
+		RPI_DMA_TI_WAIT_RESP |       // wait for write complete
+		RPI_DMA_TI_DEST_DREQ |       // user peripheral flow control
+		RPI_DMA_TI_PERMAP(5) |       // PWM peripheral
+		RPI_DMA_TI_SRC_INC;          // Increment src addr
 
-    dma_cb->source_ad = addr_to_bus(device, device->pwm_raw);
+	dma_cb->source_ad = addr_to_bus(device, device->pwm_raw);
 
-    dma_cb->dest_ad = (uint32_t)&((pwm_t *)PWM_PERIPH_PHYS)->fif1;
-    dma_cb->txfr_len = byte_count;
-    dma_cb->stride = 0;
-    dma_cb->nextconbk = 0;
+	dma_cb->dest_ad = (uint32_t) & ((pwm_t *)PWM_PERIPH_PHYS)->fif1;
+	dma_cb->txfr_len = byte_count;
+	dma_cb->stride = 0;
+	dma_cb->nextconbk = 0;
 
-    dma->cs = 0;
-    dma->txfr_len = 0;
+	dma->cs = 0;
+	dma->txfr_len = 0;
 
-    return 0;
+	return 0;
 }
 
 /**
@@ -308,18 +312,18 @@ void dma_start(pwm_dev_t *pwm_dev)
 	volatile dma_t *dma = device->dma;
 	uint32_t dma_cb_addr = device->dma_cb_addr;
 
-    dma->cs = RPI_DMA_CS_RESET;
-    usleep(10);
+	dma->cs = RPI_DMA_CS_RESET;
+	usleep(10);
 
-    dma->cs = RPI_DMA_CS_INT | RPI_DMA_CS_END;
-    usleep(10);
+	dma->cs = RPI_DMA_CS_INT | RPI_DMA_CS_END;
+	usleep(10);
 
-    dma->conblk_ad = dma_cb_addr;
-    dma->debug = 7; // clear debug error flags
-    dma->cs = RPI_DMA_CS_WAIT_OUTSTANDING_WRITES |
-              RPI_DMA_CS_PANIC_PRIORITY(15) | 
-              RPI_DMA_CS_PRIORITY(15) |
-              RPI_DMA_CS_ACTIVE;
+	dma->conblk_ad = dma_cb_addr;
+	dma->debug = 7; // clear debug error flags
+	dma->cs = RPI_DMA_CS_WAIT_OUTSTANDING_WRITES |
+		RPI_DMA_CS_PANIC_PRIORITY(15) |
+		RPI_DMA_CS_PRIORITY(15) |
+		RPI_DMA_CS_ACTIVE;
 }
 
 /**
@@ -368,19 +372,19 @@ void pwm_raw_init(pwm_dev_t *pwm_dev)
 	volatile uint32_t *pwm_raw = (uint32_t *) pwm_dev->device->pwm_raw;
 	int maxcount = max_channel_led_count(pwm_dev);
 	int wordcount = ((PWM_BYTE_COUNT(maxcount, pwm_dev->freq) + TRAILING_LEDS) / sizeof(uint32_t)) /
-	RPI_PWM_CHANNELS;
+		RPI_PWM_CHANNELS;
 	int chan;
 
-    for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
-    {
-        int i, wordpos = chan;
+	for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
+	{
+		int i, wordpos = chan;
 
-        for (i = 0; i < wordcount; i++)
-        {
-            pwm_raw[wordpos] = 0x0;
-            wordpos += 2;
-        }
-    }
+		for (i = 0; i < wordcount; i++)
+		{
+			pwm_raw[wordpos] = 0x0;
+			wordpos += 2;
+		}
+	}
 }
 
 /**
@@ -392,34 +396,35 @@ void pwm_raw_init(pwm_dev_t *pwm_dev)
  */
 void pwm_dev_cleanup(pwm_dev_t *pwm_dev)
 {
-    pwm_dev_device_t *device = pwm_dev->device;
-    int chan;
+	pwm_dev_device_t *device = pwm_dev->device;
+	int chan;
 
-    for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
-    {
-        if (pwm_dev->channel[chan].leds)
-        {
-            free(pwm_dev->channel[chan].leds);
-        }
-        pwm_dev->channel[chan].leds = NULL;
-    }
+	for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
+	{
+		if (pwm_dev->channel[chan].leds)
+		{
+			free(pwm_dev->channel[chan].leds);
+		}
+		pwm_dev->channel[chan].leds = NULL;
+	}
 
-    if (device->mbox.handle != -1)
-    {
-        videocore_mbox_t *mbox = &device->mbox;
+	if (device->mbox.handle != -1)
+	{
+		videocore_mbox_t *mbox = &device->mbox;
 
-        unmapmem(mbox->virt_addr, mbox->size);
-        mem_unlock(mbox->handle, mbox->mem_ref);
-        mem_free(mbox->handle, mbox->mem_ref);
-        mbox_close(mbox->handle);
+		unmapmem(mbox->virt_addr, mbox->size);
+		mem_unlock(mbox->handle, mbox->mem_ref);
+		mem_free(mbox->handle, mbox->mem_ref);
+		mbox_close(mbox->handle);
 
-        mbox->handle = -1;
-    }
+		mbox->handle = -1;
+	}
 
-    if (device) {
-        free(device);
-    }
-    pwm_dev->device = NULL;
+	if (device)
+	{
+		free(device);
+	}
+	pwm_dev->device = NULL;
 }
 
 
@@ -439,95 +444,95 @@ void pwm_dev_cleanup(pwm_dev_t *pwm_dev)
  */
 int pwm_dev_init(pwm_dev_t *pwm_dev)
 {
-    pwm_dev_device_t *device;
-    const rpi_hw_t *rpi_hw;
-    int chan;
+	pwm_dev_device_t *device;
+	const rpi_hw_t *rpi_hw;
+	int chan;
 
-    pwm_dev->rpi_hw = rpi_hw_detect();
-    if (!pwm_dev->rpi_hw)
-    {
-        return -1;
-    }
-    rpi_hw = pwm_dev->rpi_hw;
+	pwm_dev->rpi_hw = rpi_hw_detect();
+	if (!pwm_dev->rpi_hw)
+	{
+		return -1;
+	}
+	rpi_hw = pwm_dev->rpi_hw;
 
-    pwm_dev->device = malloc(sizeof(*pwm_dev->device));
-    if (!pwm_dev->device)
-    {
-        return -1;
-    }
-    device = pwm_dev->device;
+	pwm_dev->device = malloc(sizeof(*pwm_dev->device));
+	if (!pwm_dev->device)
+	{
+		return -1;
+	}
+	device = pwm_dev->device;
 
-    // Determine how much physical memory we need for DMA
-    device->mbox.size = PWM_BYTE_COUNT(max_channel_led_count(pwm_dev), pwm_dev->freq) +
-                        sizeof(dma_cb_t);
-    // Round up to page size multiple
-    device->mbox.size = (device->mbox.size + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
+	// Determine how much physical memory we need for DMA
+	device->mbox.size = PWM_BYTE_COUNT(max_channel_led_count(pwm_dev), pwm_dev->freq) +
+		sizeof(dma_cb_t);
+	// Round up to page size multiple
+	device->mbox.size = (device->mbox.size + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
 
-    device->mbox.handle = mbox_open();
-    if (device->mbox.handle == -1)
-    {
-        return -1;
-    }
+	device->mbox.handle = mbox_open();
+	if (device->mbox.handle == -1)
+	{
+		return -1;
+	}
 
-    device->mbox.mem_ref = mem_alloc(device->mbox.handle, device->mbox.size, PAGE_SIZE,
-                                     rpi_hw->videocore_base == 0x40000000 ? 0xC : 0x4);
-    if (device->mbox.mem_ref == 0)
-    {
-       return -1;
-    }
+	device->mbox.mem_ref = mem_alloc(device->mbox.handle, device->mbox.size, PAGE_SIZE,
+			rpi_hw->videocore_base == 0x40000000 ? 0xC : 0x4);
+	if (device->mbox.mem_ref == 0)
+	{
+		return -1;
+	}
 
-    device->mbox.bus_addr = mem_lock(device->mbox.handle, device->mbox.mem_ref);
-    if (device->mbox.bus_addr == (uint32_t) ~0UL)
-    {
-       mem_free(device->mbox.handle, device->mbox.size);
-       return -1;
-    }
-    device->mbox.virt_addr = mapmem(BUS_TO_PHYS(device->mbox.bus_addr), device->mbox.size);
+	device->mbox.bus_addr = mem_lock(device->mbox.handle, device->mbox.mem_ref);
+	if (device->mbox.bus_addr == (uint32_t) ~0UL)
+	{
+		mem_free(device->mbox.handle, device->mbox.size);
+		return -1;
+	}
+	device->mbox.virt_addr = mapmem(BUS_TO_PHYS(device->mbox.bus_addr), device->mbox.size);
 
-    // Initialize all pointers to NULL.  Any non-NULL pointers will be freed on cleanup.
-    device->pwm_raw = NULL;
-    device->dma_cb = NULL;
-    for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
-    {
-        pwm_dev->channel[chan].leds = NULL;
-    }
+	// Initialize all pointers to NULL.  Any non-NULL pointers will be freed on cleanup.
+	device->pwm_raw = NULL;
+	device->dma_cb = NULL;
+	for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)
+	{
+		pwm_dev->channel[chan].leds = NULL;
+	}
 
-    device->dma_cb = (dma_cb_t *)device->mbox.virt_addr;
-    device->pwm_raw = (uint8_t *)device->mbox.virt_addr + sizeof(dma_cb_t);
+	device->dma_cb = (dma_cb_t *)device->mbox.virt_addr;
+	device->pwm_raw = (uint8_t *)device->mbox.virt_addr + sizeof(dma_cb_t);
 
-    pwm_raw_init(pwm_dev);
+	pwm_raw_init(pwm_dev);
 
-    memset((dma_cb_t *)device->dma_cb, 0, sizeof(dma_cb_t));
+	memset((dma_cb_t *)device->dma_cb, 0, sizeof(dma_cb_t));
 
-    // Cache the DMA control block bus address
-    device->dma_cb_addr = addr_to_bus(device, device->dma_cb);
+	// Cache the DMA control block bus address
+	device->dma_cb_addr = addr_to_bus(device, device->dma_cb);
 
-    // Map the physical registers into userspace
-    if (map_registers(pwm_dev))
-    {
-        goto err;
-    }
+	// Map the physical registers into userspace
+	if (map_registers(pwm_dev))
+	{
+		goto err;
+	}
 
-    // Initialize the GPIO pins
-    if (gpio_init(pwm_dev))
-    {
-        unmap_registers(pwm_dev);
-        goto err;
-    }
+	// Initialize the GPIO pins
+	if (gpio_init(pwm_dev))
+	{
+		unmap_registers(pwm_dev);
+		goto err;
+	}
 
-    // Setup the PWM, clocks, and DMA
-    if (setup_pwm(pwm_dev))
-    {
-        unmap_registers(pwm_dev);
-        goto err;
-    }
+	// Setup the PWM, clocks, and DMA
+	if (setup_pwm(pwm_dev))
+	{
+		unmap_registers(pwm_dev);
+		goto err;
+	}
 
-    return 0;
+	return 0;
 
 err:
-    pwm_dev_cleanup(pwm_dev);
+	pwm_dev_cleanup(pwm_dev);
 
-    return -1;
+	return -1;
 }
 
 /**
@@ -582,72 +587,72 @@ int pwm_dev_wait(pwm_dev_t *pwm_dev)
  */
 int pwm_dev_render(pwm_dev_t *pwm_dev)
 {
-    volatile uint8_t *pwm_raw = pwm_dev->device->pwm_raw;
-    int bitpos = 31;
-    int i, k, l, chan;
-    unsigned j;
+	volatile uint8_t *pwm_raw = pwm_dev->device->pwm_raw;
+	int bitpos = 31;
+	int i, k, l, chan;
+	unsigned j;
 
-    for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)         // Channel
-    {
-        pwm_dev_channel_t *channel = &pwm_dev->channel[chan];
-        int wordpos = chan;
-        int scale   = (channel->brightness & 0xff) + 1;
-        int rshift  = (channel->strip_type >> 16) & 0xff;
-        int gshift  = (channel->strip_type >> 8)  & 0xff;
-        int bshift  = (channel->strip_type >> 0)  & 0xff;
+	for (chan = 0; chan < RPI_PWM_CHANNELS; chan++)         // Channel
+	{
+		pwm_dev_channel_t *channel = &pwm_dev->channel[chan];
+		int wordpos = chan;
+		int scale   = (channel->brightness & 0xff) + 1;
+		int rshift  = (channel->strip_type >> 16) & 0xff;
+		int gshift  = (channel->strip_type >> 8)  & 0xff;
+		int bshift  = (channel->strip_type >> 0)  & 0xff;
 
-        for (i = 0; i < channel->count; i++)                // Led
-        {
-            uint8_t color[] =
-            {
-                (((channel->leds[i] >> rshift) & 0xff) * scale) >> 8, // red
-                (((channel->leds[i] >> gshift) & 0xff) * scale) >> 8, // green
-                (((channel->leds[i] >> bshift) & 0xff) * scale) >> 8, // blue
-            };
+		for (i = 0; i < channel->count; i++)                // Led
+		{
+			uint8_t color[] =
+			{
+				(((channel->leds[i] >> rshift) & 0xff) * scale) >> 8, // red
+					(((channel->leds[i] >> gshift) & 0xff) * scale) >> 8, // green
+					(((channel->leds[i] >> bshift) & 0xff) * scale) >> 8, // blue
+			};
 
-            for (j = 0; j < ARRAY_SIZE(color); j++)        // Color
-            {
-                for (k = 7; k >= 0; k--)                   // Bit
-                {
-                    uint8_t symbol = SYMBOL_LOW;
+			for (j = 0; j < ARRAY_SIZE(color); j++)        // Color
+			{
+				for (k = 7; k >= 0; k--)                   // Bit
+				{
+					uint8_t symbol = SYMBOL_LOW;
 
-                    if (color[j] & (1 << k))
-                    {
-                        symbol = SYMBOL_HIGH;
-                    }
+					if (color[j] & (1 << k))
+					{
+						symbol = SYMBOL_HIGH;
+					}
 
-                    for (l = 2; l >= 0; l--)               // Symbol
-                    {
-                        uint32_t *wordptr = &((uint32_t *)pwm_raw)[wordpos];
+					for (l = 2; l >= 0; l--)               // Symbol
+					{
+						uint32_t *wordptr = &((uint32_t *)pwm_raw)[wordpos];
 
-                        *wordptr &= ~(1 << bitpos);
-                        if (symbol & (1 << l))
-                        {
-                            *wordptr |= (1 << bitpos);
-                        }
+						*wordptr &= ~(1 << bitpos);
+						if (symbol & (1 << l))
+						{
+							*wordptr |= (1 << bitpos);
+						}
 
-                        bitpos--;
-                        if (bitpos < 0)
-                        {
-                            // Every other word is on the same channel
-                            wordpos += 2;
+						bitpos--;
+						if (bitpos < 0)
+						{
+							// Every other word is on the same channel
+							wordpos += 2;
 
-                            bitpos = 31;
-                        }
-                    }
-                }
-            }
-        }
-    }
+							bitpos = 31;
+						}
+					}
+				}
+			}
+		}
+	}
 
-    // Wait for any previous DMA operation to complete.
-    if (pwm_dev_wait(pwm_dev))
-    {
-        return -1;
-    }
+	// Wait for any previous DMA operation to complete.
+	if (pwm_dev_wait(pwm_dev))
+	{
+		return -1;
+	}
 
-    dma_start(pwm_dev);
+	dma_start(pwm_dev);
 
-    return 0;
+	return 0;
 }
 

@@ -42,15 +42,15 @@ struct ambitv_web_processor_priv
 
 static int
 ambitv_web_processor_handle_frame(
-    struct ambitv_processor_component* component,
-    void* nothing,
-    int change,
-    int r,
-    int g,
-    int b
+	struct ambitv_processor_component *component,
+	void *nothing,
+	int change,
+	int r,
+	int g,
+	int b
 )
 {
-	struct ambitv_web_processor_priv* priv = (struct ambitv_web_processor_priv*) component->priv;
+	struct ambitv_web_processor_priv *priv = (struct ambitv_web_processor_priv *) component->priv;
 
 	if (change)
 	{
@@ -65,19 +65,19 @@ ambitv_web_processor_handle_frame(
 
 static int
 ambitv_web_processor_update_sink(
-    struct ambitv_processor_component* processor,
-    struct ambitv_sink_component* sink)
+	struct ambitv_processor_component *processor,
+	struct ambitv_sink_component *sink)
 {
 	int i, n_out, ret = 0;
-	struct ambitv_web_processor_priv* priv = (struct ambitv_web_processor_priv*) processor->priv;
+	struct ambitv_web_processor_priv *priv = (struct ambitv_web_processor_priv *) processor->priv;
 
 	if (sink->f_num_outputs && sink->f_map_output_to_point && sink->f_set_output_to_rgb)
 	{
 		n_out = sink->f_num_outputs(sink);
 
-		for (i=0; i<n_out; i++)
+		for (i = 0; i < n_out; i++)
 		{
-			sink->f_set_output_to_rgb(sink, i,priv->color.r, priv->color.g,priv->color.b);
+			sink->f_set_output_to_rgb(sink, i, priv->color.r, priv->color.g, priv->color.b);
 		}
 	}
 	else
@@ -90,7 +90,7 @@ ambitv_web_processor_update_sink(
 }
 
 static int
-ambitv_web_processor_configure(struct ambitv_web_processor_priv* priv, int argc, char** argv)
+ambitv_web_processor_configure(struct ambitv_web_processor_priv *priv, int argc, char **argv)
 {
 	int c, ret = 0;
 
@@ -110,28 +110,28 @@ ambitv_web_processor_configure(struct ambitv_web_processor_priv* priv, int argc,
 
 		switch (c)
 		{
-		case 'c':
-		{
-			if (NULL != optarg)
+			case 'c':
 			{
-				if ((sscanf(optarg, "%2X%2X%2X", &priv->color.r, &priv->color.g, &priv->color.b) == 3))
+				if (NULL != optarg)
 				{
-					priv->webcolor = !(priv->color.r || priv->color.g || priv->color.b);
-				}
-				else
-				{
-					ambitv_log(ambitv_log_error,
-					           LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
-					ret = -1;
-					goto errReturn;
+					if ((sscanf(optarg, "%2X%2X%2X", &priv->color.r, &priv->color.g, &priv->color.b) == 3))
+					{
+						priv->webcolor = !(priv->color.r || priv->color.g || priv->color.b);
+					}
+					else
+					{
+						ambitv_log(ambitv_log_error,
+							LOGNAME "invalid argument for '%s': '%s'.\n", argv[optind - 2], optarg);
+						ret = -1;
+						goto errReturn;
+					}
+
 				}
 
+				break;
 			}
-
-			break;
-		}
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
@@ -146,33 +146,33 @@ errReturn:
 }
 
 static void
-ambitv_web_processor_print_configuration(struct ambitv_processor_component* component)
+ambitv_web_processor_print_configuration(struct ambitv_processor_component *component)
 {
-	struct ambitv_web_processor_priv* priv = (struct ambitv_web_processor_priv*) component->priv;
+	struct ambitv_web_processor_priv *priv = (struct ambitv_web_processor_priv *) component->priv;
 
 	ambitv_log(ambitv_log_info,
-	           "\tcolor : %02X%02X%02X\n",priv->color.r, priv->color.g, priv->color.b
-	          );
+		"\tcolor : %02X%02X%02X\n", priv->color.r, priv->color.g, priv->color.b
+	);
 }
 
 static void
-ambitv_web_processor_free(struct ambitv_processor_component* component)
+ambitv_web_processor_free(struct ambitv_processor_component *component)
 {
 	free(component->priv);
 }
 
-struct ambitv_processor_component*
-ambitv_web_processor_create(const char* name, int argc, char** argv)
+struct ambitv_processor_component *
+ambitv_web_processor_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_processor_component* web_processor =
-	    ambitv_processor_component_create(name);
+	struct ambitv_processor_component *web_processor =
+		ambitv_processor_component_create(name);
 
 	if (NULL != web_processor)
 	{
-		struct ambitv_web_processor_priv* priv =
-		    (struct ambitv_web_processor_priv*)malloc(sizeof(struct ambitv_web_processor_priv));
+		struct ambitv_web_processor_priv *priv =
+			(struct ambitv_web_processor_priv *)malloc(sizeof(struct ambitv_web_processor_priv));
 
-		web_processor->priv = (void*)priv;
+		web_processor->priv = (void *)priv;
 
 		web_processor->f_print_configuration  = ambitv_web_processor_print_configuration;
 		web_processor->f_consume_frame        = ambitv_web_processor_handle_frame;

@@ -42,8 +42,8 @@
 
 struct audio_grab
 {
-	struct ambitv_source_component* source_component;
-	char* dev_name;
+	struct ambitv_source_component *source_component;
+	char *dev_name;
 	int format;
 	int radj;
 	int ladj;
@@ -56,7 +56,7 @@ struct audio_grab
 	snd_pcm_uframes_t frames;
 };
 
-static int ambitv_audio_grab_open_device(struct audio_grab* grabber)
+static int ambitv_audio_grab_open_device(struct audio_grab *grabber)
 {
 	int ret = 0;
 
@@ -64,7 +64,7 @@ static int ambitv_audio_grab_open_device(struct audio_grab* grabber)
 	if ((errno = snd_pcm_open(&grabber->handle, grabber->dev_name, SND_PCM_STREAM_CAPTURE, 0)) < 0)
 	{
 		ambitv_log(ambitv_log_error, LOGNAME "failed to open '%s': %d (%s).\n", grabber->dev_name, errno,
-				snd_strerror(errno));
+			snd_strerror(errno));
 
 		ret = -errno;
 	}
@@ -72,7 +72,7 @@ static int ambitv_audio_grab_open_device(struct audio_grab* grabber)
 	return ret;
 }
 
-static int ambitv_audio_grab_close_device(struct audio_grab* grabber)
+static int ambitv_audio_grab_close_device(struct audio_grab *grabber)
 {
 	int ret = 0;
 
@@ -84,7 +84,7 @@ static int ambitv_audio_grab_close_device(struct audio_grab* grabber)
 	return ret;
 }
 
-static void ambitv_audio_grab_free_buffers(struct audio_grab* grabber)
+static void ambitv_audio_grab_free_buffers(struct audio_grab *grabber)
 {
 	if (NULL != grabber->buffer)
 	{
@@ -93,7 +93,7 @@ static void ambitv_audio_grab_free_buffers(struct audio_grab* grabber)
 	}
 }
 
-static int ambitv_audio_grab_init_device(struct audio_grab* grabber)
+static int ambitv_audio_grab_init_device(struct audio_grab *grabber)
 {
 	int ret = -1, dir;
 	unsigned int val;
@@ -138,7 +138,7 @@ static int ambitv_audio_grab_init_device(struct audio_grab* grabber)
 	return ret;
 }
 
-static int ambitv_audio_grab_uninit_device(struct audio_grab* grabber)
+static int ambitv_audio_grab_uninit_device(struct audio_grab *grabber)
 {
 
 	ambitv_audio_grab_free_buffers(grabber);
@@ -146,21 +146,21 @@ static int ambitv_audio_grab_uninit_device(struct audio_grab* grabber)
 	return 0;
 }
 
-static int ambitv_audio_grab_start_streaming(struct audio_grab* grabber)
+static int ambitv_audio_grab_start_streaming(struct audio_grab *grabber)
 {
 	return 0;
 }
 
-static int ambitv_audio_grab_stop_streaming(struct audio_grab* grabber)
+static int ambitv_audio_grab_stop_streaming(struct audio_grab *grabber)
 {
 	return 0;
 }
 
-static int ambitv_audio_grab_read_frame(struct audio_grab* grabber)
+static int ambitv_audio_grab_read_frame(struct audio_grab *grabber)
 {
 	int ret, tempr, templ;
 	int i, n, o, lo;
-	signed char *buffer = (signed char*) grabber->buffer;
+	signed char *buffer = (signed char *) grabber->buffer;
 
 	ret = snd_pcm_readi(grabber->handle, grabber->buffer, grabber->frames);
 	if (ret == -EPIPE)
@@ -214,19 +214,19 @@ static int ambitv_audio_grab_read_frame(struct audio_grab* grabber)
 		n++;
 	}
 
-	ambitv_source_component_distribute_to_active_processors(grabber->source_component, (void*) &grabber->shared,
-	SAMPLES, grabber->rate, 0, //exval,
-			0 //cmd
-			);
+	ambitv_source_component_distribute_to_active_processors(grabber->source_component, (void *) &grabber->shared,
+		SAMPLES, grabber->rate, 0, //exval,
+		0 //cmd
+	);
 
 	return ret;
 }
 
-static int ambitv_audio_grab_capture_loop_iteration(struct ambitv_source_component* grabber)
+static int ambitv_audio_grab_capture_loop_iteration(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 
-	struct audio_grab* grab_priv = (struct audio_grab*) grabber->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
@@ -235,11 +235,11 @@ static int ambitv_audio_grab_capture_loop_iteration(struct ambitv_source_compone
 	return ret;
 }
 
-int ambitv_audio_grab_start(struct ambitv_source_component* grabber)
+int ambitv_audio_grab_start(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 
-	struct audio_grab* grab_priv = (struct audio_grab*) grabber->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
@@ -263,26 +263,26 @@ int ambitv_audio_grab_start(struct ambitv_source_component* grabber)
 
 	return ret;
 
-	fail_streaming: ambitv_audio_grab_uninit_device(grab_priv);
+fail_streaming: ambitv_audio_grab_uninit_device(grab_priv);
 
-	fail_init: ambitv_audio_grab_close_device(grab_priv);
+fail_init: ambitv_audio_grab_close_device(grab_priv);
 
 //	fail_open: return ret;
 	return ret;
 }
 
-int ambitv_audio_grab_stop(struct ambitv_source_component* grabber)
+int ambitv_audio_grab_stop(struct ambitv_source_component *grabber)
 {
 	int ret = 0;
 
-	struct audio_grab* grab_priv = (struct audio_grab*) grabber->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
 	if (grab_priv->handle == NULL)
 	{
 		ambitv_log(ambitv_log_warn,
-		LOGNAME "grabber is not running and can't be stopped.\n");
+			LOGNAME "grabber is not running and can't be stopped.\n");
 		return -1;
 	}
 
@@ -296,21 +296,22 @@ int ambitv_audio_grab_stop(struct ambitv_source_component* grabber)
 
 	ret = ambitv_audio_grab_close_device(grab_priv);
 
-	fail_return: return ret;
+fail_return: return ret;
 }
 
-static int ambitv_audio_grab_configure(struct ambitv_source_component* grabber, int argc, char** argv)
+static int ambitv_audio_grab_configure(struct ambitv_source_component *grabber, int argc, char **argv)
 {
 	int c, ret = 0;
 
-	struct audio_grab* grab_priv = (struct audio_grab*) grabber->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) grabber->priv;
 	if (NULL == grab_priv)
 		return -1;
 
 	static struct option lopts[] =
 	{
-	{ "audio-device", required_argument, 0, 'd' },
-	{ NULL, 0, 0, 0 } };
+		{ "audio-device", required_argument, 0, 'd' },
+		{ NULL, 0, 0, 0 }
+	};
 
 	while (1)
 	{
@@ -321,21 +322,21 @@ static int ambitv_audio_grab_configure(struct ambitv_source_component* grabber, 
 
 		switch (c)
 		{
-		case 'd':
-			if (NULL != optarg)
-			{
-				if (NULL != grab_priv->dev_name)
-					free(grab_priv->dev_name);
+			case 'd':
+				if (NULL != optarg)
+				{
+					if (NULL != grab_priv->dev_name)
+						free(grab_priv->dev_name);
 
-				grab_priv->dev_name = strdup(optarg);
-			}
-			break;
+					grab_priv->dev_name = strdup(optarg);
+				}
+				break;
 		}
 
 		if (optind < argc)
 		{
 			ambitv_log(ambitv_log_error,
-			LOGNAME "extraneous configuration argument: '%s'.\n", argv[optind]);
+				LOGNAME "extraneous configuration argument: '%s'.\n", argv[optind]);
 			ret = -1;
 		}
 
@@ -343,16 +344,16 @@ static int ambitv_audio_grab_configure(struct ambitv_source_component* grabber, 
 	return ret;
 }
 
-static void ambitv_audio_grab_print_configuration(struct ambitv_source_component* component)
+static void ambitv_audio_grab_print_configuration(struct ambitv_source_component *component)
 {
-	struct audio_grab* grab_priv = (struct audio_grab*) component->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) component->priv;
 
 	ambitv_log(ambitv_log_info, "\tdevice name:              %s\n", grab_priv->dev_name);
 }
 
-void ambitv_audio_grab_free(struct ambitv_source_component* component)
+void ambitv_audio_grab_free(struct ambitv_source_component *component)
 {
-	struct audio_grab* grab_priv = (struct audio_grab*) component->priv;
+	struct audio_grab *grab_priv = (struct audio_grab *) component->priv;
 
 	if (NULL != grab_priv)
 	{
@@ -367,14 +368,14 @@ void ambitv_audio_grab_free(struct ambitv_source_component* component)
 	}
 }
 
-struct ambitv_source_component*
-ambitv_audio_grab_create(const char* name, int argc, char** argv)
+struct ambitv_source_component *
+ambitv_audio_grab_create(const char *name, int argc, char **argv)
 {
-	struct ambitv_source_component* grabber = ambitv_source_component_create(name);
+	struct ambitv_source_component *grabber = ambitv_source_component_create(name);
 
 	if (NULL != grabber)
 	{
-		struct audio_grab* grab_priv = (struct audio_grab*) malloc(sizeof(struct audio_grab));
+		struct audio_grab *grab_priv = (struct audio_grab *) malloc(sizeof(struct audio_grab));
 		if (NULL == grab_priv)
 			goto errReturn;
 
@@ -398,7 +399,7 @@ ambitv_audio_grab_create(const char* name, int argc, char** argv)
 
 	return grabber;
 
-	errReturn: ambitv_source_component_free(grabber);
+errReturn: ambitv_source_component_free(grabber);
 
 	return NULL;
 }

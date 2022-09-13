@@ -28,7 +28,7 @@
 
 #include "../component.h"
 
-struct ambitv_sink_component*
-ambitv_udp_dnrgb_create(const char* name, int argc, char** argv);
+struct ambitv_sink_component *
+ambitv_udp_dnrgb_create(const char *name, int argc, char **argv);
 
 #endif // __AMBITV_UDP_DNRGB_SINK_H__

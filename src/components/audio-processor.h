@@ -22,7 +22,7 @@
 
 #include "../component.h"
 
-struct ambitv_processor_component*
-ambitv_audio_processor_create(const char* name, int argc, char** argv);
+struct ambitv_processor_component *
+ambitv_audio_processor_create(const char *name, int argc, char **argv);
 
 #endif // __AMBITV_AUDIO_PROCESSOR_H__

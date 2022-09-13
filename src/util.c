@@ -31,17 +31,17 @@
 
 static const char html_header[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n";
 
-int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, intptr_t* len_ptr, void* ptr)
+int ambitv_util_append_ptr_to_list(void ***list_ptr, int idx, intptr_t *len_ptr, void *ptr)
 {
 	if (NULL == *list_ptr)
 	{
-		*list_ptr = (void**) malloc(sizeof(void*) * LIST_GROW_STEP);
+		*list_ptr = (void **) malloc(sizeof(void *) * LIST_GROW_STEP);
 		*len_ptr = LIST_GROW_STEP;
 	}
 	else if (idx >= *len_ptr)
 	{
 		*len_ptr += LIST_GROW_STEP;
-		*list_ptr = (void**) realloc(*list_ptr, sizeof(void*) * (*len_ptr));
+		*list_ptr = (void **) realloc(*list_ptr, sizeof(void *) * (*len_ptr));
 	}
 
 	(*list_ptr)[idx] = ptr;
@@ -49,11 +49,11 @@ int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, intptr_t* len_ptr,
 	return ++idx;
 }
 
-int ambitv_parse_led_string(const char* str, intptr_t** out_ptr, intptr_t* out_len)
+int ambitv_parse_led_string(const char *str, intptr_t **out_ptr, intptr_t *out_len)
 {
 	int a, b, c, idx = 0, skip = 0, *s = &a;
 	intptr_t ilen = 0;
-	intptr_t* list = NULL;
+	intptr_t *list = NULL;
 
 	a = b = 0;
 	while (1)
@@ -62,78 +62,79 @@ int ambitv_parse_led_string(const char* str, intptr_t** out_ptr, intptr_t* out_l
 
 		switch (c)
 		{
-		case 'X':
-		case 'x':
-		{
-			if (&b == s)
+			case 'X':
+			case 'x':
 			{
-				ambitv_log(ambitv_log_error, LOGNAME "unexpected '%c'.\n", c);
-				goto errReturn;
-			}
-
-			skip = 1;
-			break;
-		}
-
-		case '-':
-		{
-			if (&a == s && !skip)
-			{
-				s = &b;
-			}
-			else
-			{
-				ambitv_log(ambitv_log_error, LOGNAME "unexpected '%c'.\n", c);
-				goto errReturn;
-			}
-
-			break;
-		}
-
-		case '\0':
-		case '\n':
-		case ',':
-		{
-			if (skip)
-			{
-				while (a--)
-					idx = ambitv_util_append_ptr_to_list((void***) &list, idx, &ilen, (void*) -1);
-			}
-			else
-			{
-				int l = a, r = a + 1, ss = 1;
-
 				if (&b == s)
 				{
-					ss = (l > b) ? -1 : 1;
-					r = b + ss;
+					ambitv_log(ambitv_log_error, LOGNAME "unexpected '%c'.\n", c);
+					goto errReturn;
 				}
 
-				do
-				{
-					idx = ambitv_util_append_ptr_to_list((void***) &list, idx, &ilen, (void*) l);
-
-					l += ss;
-				} while (l != r);
+				skip = 1;
+				break;
 			}
 
-			skip = a = b = 0;
-			s = &a;
-
-			break;
-		}
-
-		default:
-		{
-			if (skip || c < '0' || c > '9')
+			case '-':
 			{
-				ambitv_log(ambitv_log_error, LOGNAME "unexpected character '%c'.\n", c);
-				goto errReturn;
+				if (&a == s && !skip)
+				{
+					s = &b;
+				}
+				else
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "unexpected '%c'.\n", c);
+					goto errReturn;
+				}
+
+				break;
 			}
 
-			*s = *s * 10 + (c - '0');
-			break;
-		}
+			case '\0':
+			case '\n':
+			case ',':
+			{
+				if (skip)
+				{
+					while (a--)
+						idx = ambitv_util_append_ptr_to_list((void ***) &list, idx, &ilen, (void *) -1);
+				}
+				else
+				{
+					int l = a, r = a + 1, ss = 1;
+
+					if (&b == s)
+					{
+						ss = (l > b) ? -1 : 1;
+						r = b + ss;
+					}
+
+					do
+					{
+						idx = ambitv_util_append_ptr_to_list((void ***) &list, idx, &ilen, (void *) l);
+
+						l += ss;
+					}
+					while (l != r);
+				}
+
+				skip = a = b = 0;
+				s = &a;
+
+				break;
+			}
+
+			default:
+			{
+				if (skip || c < '0' || c > '9')
+				{
+					ambitv_log(ambitv_log_error, LOGNAME "unexpected character '%c'.\n", c);
+					goto errReturn;
+				}
+
+				*s = *s * 10 + (c - '0');
+				break;
+			}
 		}
 
 		if (c == '\0' || c == '\n')
@@ -145,7 +146,7 @@ int ambitv_parse_led_string(const char* str, intptr_t** out_ptr, intptr_t* out_l
 
 	return 0;
 
-	errReturn: return -1;
+errReturn: return -1;
 }
 
 char *stristr(const char *String, const char *Pattern)
@@ -186,8 +187,8 @@ void netif_send(int socket, char *data, int length, int mode, bool bb)
 			char tbuf[128];
 
 			write(socket, html_header, sizeof(html_header));
-			sprintf(tbuf, "Content-Length: %ld\r\n%s", (unsigned long) ((length) ? length : strlen(data)),
-					(bb) ? "" : "\r\n");
+			sprintf(tbuf, "Content-Length: %ld\r\n%s", (unsigned long)((length) ? length : strlen(data)),
+				(bb) ? "" : "\r\n");
 			write(socket, tbuf, strlen(tbuf));
 		}
 		if (mode & NETIF_MODE_MID)

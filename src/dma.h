@@ -15,7 +15,7 @@
  *         provided with the distribution.
  *     3.  Neither the name of the owner nor the names of its contributors may be used to endorse
  *         or promote products derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
@@ -39,13 +39,13 @@
  */
 typedef struct
 {
-    uint32_t ti;
-    uint32_t source_ad;
-    uint32_t dest_ad;
-    uint32_t txfr_len;
-    uint32_t stride;
-    uint32_t nextconbk;
-    uint32_t resvd_0x18[2];
+	uint32_t ti;
+	uint32_t source_ad;
+	uint32_t dest_ad;
+	uint32_t txfr_len;
+	uint32_t stride;
+	uint32_t nextconbk;
+	uint32_t resvd_0x18[2];
 } __attribute__((packed, aligned(4))) dma_cb_t;
 
 /*
@@ -53,12 +53,12 @@ typedef struct
  */
 typedef struct
 {
-    uint32_t cs;
+	uint32_t cs;
 #define RPI_DMA_CS_RESET                         (1 << 31)
 #define RPI_DMA_CS_ABORT                         (1 << 30)
 #define RPI_DMA_CS_DISDEBUG                      (1 << 29)
 #define RPI_DMA_CS_WAIT_OUTSTANDING_WRITES       (1 << 28)
-#define RPI_DMA_CS_PANIC_PRIORITY(val)           ((val & 0xf) << 20)                
+#define RPI_DMA_CS_PANIC_PRIORITY(val)           ((val & 0xf) << 20)
 #define RPI_DMA_CS_PRIORITY(val)                 ((val & 0xf) << 16)
 #define RPI_DMA_CS_ERROR                         (1 << 8)
 #define RPI_DMA_CS_WAITING_OUTSTANDING_WRITES    (1 << 6)
@@ -68,8 +68,8 @@ typedef struct
 #define RPI_DMA_CS_INT                           (1 << 2)
 #define RPI_DMA_CS_END                           (1 << 1)
 #define RPI_DMA_CS_ACTIVE                        (1 << 0)
-    uint32_t conblk_ad;
-    uint32_t ti;
+	uint32_t conblk_ad;
+	uint32_t ti;
 #define RPI_DMA_TI_NO_WIDE_BURSTS                (1 << 26)
 #define RPI_DMA_TI_WAITS(val)                    ((val & 0x1f) << 21)
 #define RPI_DMA_TI_PERMAP(val)                   ((val & 0x1f) << 16)
@@ -85,16 +85,16 @@ typedef struct
 #define RPI_DMA_TI_WAIT_RESP                     (1 << 3)
 #define RPI_DMA_TI_TDMODE                        (1 << 1)
 #define RPI_DMA_TI_INTEN                         (1 << 0)
-    uint32_t source_ad;
-    uint32_t dest_ad;
-    uint32_t txfr_len;
+	uint32_t source_ad;
+	uint32_t dest_ad;
+	uint32_t txfr_len;
 #define RPI_DMA_TXFR_LEN_YLENGTH(val)            ((val & 0xffff) << 16)
 #define RPI_DMA_TXFR_LEN_XLENGTH(val)            ((val & 0xffff) << 0)
-    uint32_t stride;
+	uint32_t stride;
 #define RPI_DMA_STRIDE_D_STRIDE(val)             ((val & 0xffff) << 16)
 #define RPI_DMA_STRIDE_S_STRIDE(val)             ((val & 0xffff) << 0)
-    uint32_t nextconbk;
-    uint32_t debug;
+	uint32_t nextconbk;
+	uint32_t debug;
 } __attribute__((packed, aligned(4))) dma_t;
 
 
