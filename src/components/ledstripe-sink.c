@@ -254,8 +254,8 @@ static int ambitv_ledstripe_commit_outputs(struct ambitv_sink_component* compone
 
 static int ambitv_ledstripe_set_output_to_rgb(struct ambitv_sink_component* component, int idx, int r, int g, int b)
 {
-	int ret = -1, *outp = NULL, i, *rgb[] =
-	{ &r, &g, &b };
+	int ret = -1, i, *rgb[] = { &r, &g, &b };
+	long *outp = NULL;
 	struct ambitv_ledstripe_priv* ledstripe = (struct ambitv_ledstripe_priv*) component->priv;
 	unsigned char *bptr;
 
