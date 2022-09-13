@@ -50,12 +50,14 @@ SRC_AMBITV = src/main.c src/video-fmt.c src/parse-conf.c src/component.c	\
 	src/components/web-processor.c
 
 ifdef RPI_ENABLE
+CFLAGS += -DRPI_ENABLE
 SRC_AMBITV +=                                                               \
 	src/gpio.c src/dma.c src/mailbox.c src/rpihw.c src/pwm.c src/pwm_dev.c	\
 	src/components/ledstripe-sink.c
 endif
 
 ifdef AUDIO_ENABLE
+CFLAGS += -DAUDIO_ENABLE
 SRC_AMBITV +=                                                               \
 	src/components/audio-grab-source.c										\
 	src/components/audio-processor.c
