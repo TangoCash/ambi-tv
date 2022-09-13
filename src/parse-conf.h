@@ -20,6 +20,8 @@
 #ifndef __AMBITV_PARSE_CONF_H__
 #define __AMBITV_PARSE_CONF_H__
 
+#include <stdint.h>
+
 enum ambitv_special_sinkcommand
 {
 	ambitv_special_sinkcommand_brightness = 10000,

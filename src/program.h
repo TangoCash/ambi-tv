@@ -20,6 +20,8 @@
 #ifndef __AMBITV_PROGRAM_H__
 #define __AMBITV_PROGRAM_H__
 
+#include <stdint.h>
+
 struct ambitv_program
 {
 	char *name;
