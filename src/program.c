@@ -31,7 +31,7 @@
 
 struct ambitv_program** ambitv_programs;
 int ambitv_num_programs;
-long ambitv_len_programs;
+intptr_t ambitv_len_programs;
 
 static struct ambitv_program* ambitv_current_program;
 

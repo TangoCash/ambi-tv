@@ -29,11 +29,13 @@
 #define NETIF_MODE_LAST		0x04
 #define NETIF_MODE_SINGLE	(NETIF_MODE_FIRST | NETIF_MODE_MID | NETIF_MODE_LAST)
 
+#include <stdint.h>
+
 typedef enum { false, true } bool;
 
-int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, long* len_ptr, void* ptr);
+int ambitv_util_append_ptr_to_list(void*** list_ptr, int idx, intptr_t* len_ptr, void* ptr);
 
-int ambitv_parse_led_string(const char* str, long** out_ptr, long* out_len);
+int ambitv_parse_led_string(const char* str, intptr_t** out_ptr, intptr_t* out_len);
 
 char *stristr(const char *String, const char *Pattern);
 
