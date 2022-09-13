@@ -203,7 +203,6 @@ static int ambitv_v4l2_grab_init_device(struct v4l2_grab* grabber)
 	int ret;
 	struct v4l2_capability cap;
 	struct v4l2_format vid_fmt;
-	v4l2_std_id vid_norm;
 
 	ret = xioctl(grabber->fd, VIDIOC_QUERYCAP, &cap);
 	if (ret < 0)

@@ -19,13 +19,13 @@
 #
 
 CFLAGS = -Wall
-LDFLAGS = -lpthread -lasound -lm
+LDFLAGS = -lpthread -lm
 CC = gcc
 
 ifdef RPI_ENABLE
 	CFLAGS += -march=armv6 -mfpu=vfp -mfloat-abi=hard
 else
-	CFLAGS += -std=gnu99 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
+	CFLAGS += -std=gnu99 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-unused-result
 endif
 
 ifdef DEBUG
@@ -59,7 +59,7 @@ ifdef AUDIO_ENABLE
 SRC_AMBITV +=                                                               \
 	src/components/audio-grab-source.c										\
 	src/components/audio-processor.c
-LDFLAGS += -lfftw3
+LDFLAGS += -lasound -lfftw3
 endif
 
 SRC_TESTSRV = src/udp_test_server.c
