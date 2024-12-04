@@ -29,7 +29,7 @@ Neben dem Grundgerüst von Georg Kaindl wurde auch auf die Vorabeiten von [Karl 
 
 Für den Aufbau des eigenständigen Ambilights werden folgende Komponenten benötigt:
 
-- Raspberry Pi (beliebige Version mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
+- Raspberry Pi 1-4 (beliebige Version mit aktuellem [Raspbian-Image](http://downloads.raspberrypi.org/raspbian_latest)) mit [Kühlkörpern](http://www.amazon.de/gp/product/B00BB8ZB4U)
 - [HDMI-Splitter](https://www.amazon.de/gp/product/B08KFD4XGK): Dieser Splitter unterstützt 4K DV, HDR, ARC und CEC, incl. Downscaler zu 1080p
 - [HDMI-Grabber](https://www.amazon.de/gp/product/B08SHMXYPD): 1080p HDMI Grabber zu USB 3.0
 - [WS2812B RGB LED Strip](https://www.amazon.de/gp/product/B01CDTEG1O): Die benötigte Länge hängt von der Bildschirmdiagonale ab. (man benötigt einen simplen Pegelwandler von den 3,3V des Raspi auf die 5V der LED - z.B.: 74AHCT125)
