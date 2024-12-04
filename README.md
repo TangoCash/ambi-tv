@@ -60,21 +60,23 @@ Wie oben schon angemerkt, muß bei Verwendung von WS281x-LED das 3,3V-Ausgangssi
 Das HDMI-Signal wird von der zentralen Quelle an den HDMI-Splitter geführt und von dort auf den Fernseher und unseren HDMI-Grabber aufgeteilt.  
 
 ## Software Installation
+ 
+Um zu prüfen, ob nach dem Anstecken des USB-Grabbers alle Treiber geladen worden sind, schaut man mit `'ls /dev | grep video'` ob das Gerät "video0" vorhanden ist.
 
-Bevor ambi-tv verwendet werden kann, werden für den Audio-Spektrum-Analyzer noch einige Bibliotheken und Tools benötigt. Diese kann man sich durch Eingabe von `'sudo apt-get install git libfftw3-dev libasound2-dev alsa-utils'` installieren.  
-Um zu prüfen, ob nach dem Anstecken des USB-Grabbers alle Treiber geladen worden sind, schaut man mit `'ls /dev | grep video'` ob das Gerät "video0" vorhanden ist. Ob der Audiograbber-Treiber geladen wurde, sieht man mit `'arecord -l'`. Hier sollte der usbtv-Treiber angezeigt werden:
+Wird ein SPI-LED-Streifen verwendet, muß sichergestellt werden, daß der SPI-Treiber geladen wird. Das läßt sich am einfachsten über "raspi-config" einstellen.
+
+Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/TangoCash/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make RPI_ENABLE=1'`, oder mit Audio-Spektrum-Analyzer* `'make RPI_ENABLE=1 AUDIO_ENABLE=1'` Die ausführbare Datei finden wir nun im Verzeichnis "bin".
+Zum Installieren mit Autostart führt man `'sudo make install'` aus. Nun wird ambi-tv bei jedem Start des Raspberry automatisch mit gestartet.
+
+*für den Audio-Spektrum-Analyzer werden noch einige Bibliotheken und Tools benötigt. Diese kann man sich durch Eingabe von `'sudo apt-get install git libfftw3-dev libasound2-dev alsa-utils'` installieren.
+ Ob der Soundkarten-Treiber geladen wurde, sieht man mit `'arecord -l'`. Hier sollte z.B. der usbtv-Treiber angezeigt werden (weicht je nach Soundkarte ab):
 
     Liste der Hardware-Geräte (CAPTURE)
     Karte 0: usbtv [usbtv], Gerät 0: USBTV Audio [USBTV Audio Input]
     	Sub-Geräte: 1/1
     	Sub-Gerät #0: subdevice #0
    
-Die Kartenummer "0" und Subgerätenummer "0" merken wir uns.
-
-Wird ein SPI-LED-Streifen verwendet, muß sichergestellt werden, daß der SPI-Treiber geladen wird. Das läßt sich am einfachsten über "raspi-config" einstellen.
-
-Nun clonen wir das ambi-tv-Repository mit `'git clone http://github.com/TangoCash/ambi-tv.git ambi-tv'` in das Nutzerverzeichnis (in der Regel "pi"). Mit `'cd ambi-tv'` wechseln wir in das ambi-tv-Verzeichnis und bauen das Projekt mit `'make'`. Die ausführbare Datei finden wir nun im Verzeichnis "bin".
-Zum Installieren mit Autostart führt man `'sudo make install'` aus. Nun wird ambi-tv bei jedem Start des Raspberry automatisch mit gestartet. 
+Die Kartenummer "0" und Subgerätenummer "0" merken wir uns, damit wir später die richtige Soundkarte benutzen können.
 
 Folgende Parameter akzeptiert ambi-tv beim Start:
 
@@ -133,7 +135,7 @@ Im Moment unterstützt ambi-tv folgende Komponententypen mit ihren Einstellungen
 - `crop-top`, `crop-bottom`, `crop-left`, `crop-right`: Die Anzahl der Pixel, welche an den jeweiligen Rändern übersprungen und nicht ausgewertet werden sollen. Das ist zur Unterdrückung von Bildstörungen und Wandlungsartefakten sinnvoll.  
 - `autocrop-luminance-threshold`: Ein Wert zwischen 0 und 255, welcher als Schwellwert beim Überspringen von schwarzen Balken an den Bildrändern verwendet wird. Wird dieser Helligkeitswert innerhalb einer Zeile oder Spalte 5 Mal überschritten, wird das als Ende des schwarzen Balkens interpretiert und die folgenden Zeilen bzw. Spalten an die Auswertung weitergegeben. Zu beachten ist, daß das Finden der schwarzen Balken und die oben eingestellten Bildschirmränder zusammenwirken. Eine negative Zahl schaltet das Suchen des schwarzen Balkens aus (default).
 
-**audio-grab-source**: Der Audio-Grabber über das ALSA-Device des USB-Grabbers.  
+**audio-grab-source**: Der Audio-Grabber über das ALSA-Device der Soundkarte.  
 
 - `name`: Der Instanzenname der Quelle, unter welchem sie mit den eingestellten Parametern in den Programmen verwendet werden kann.  
 - `audio-device`: Der Name des geladenen Audio-Grabber-ALSA-Devices. Die Geräte- und Subgeräte-Nummer hatten wir uns ja oben gemerkt. Der Devicename lautet im Beispiel also `hw:0,0`.  
