@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import re, time, signal, os
+import codecs
 import tkinter as tk
 
 import tkinter.messagebox as tkMessageBox
 import tkinter.filedialog as tkFileDialog
 
 from udpserver import *
+#from vidcap import *
+#from PIL import Image, ImageTk
 
 class StatusBar(tk.Frame):
 	def __init__(self, parent):
@@ -33,10 +36,19 @@ class MainWindow(tk.Frame):
 		self.canvas = None
 		self.UDPport = 21324
 
+		self.leds_t = 64
+		self.leds_b = 64
+		self.leds_l = 36
+		self.leds_r = 36
+		self.leds_s = 64
+
 		self.show_numbers = True
+		#self.show_video = False
 		self.calculateCLUTs()
 		self.resetVars()
 		self.initUI()
+		#if self.show_video:
+		#	self.vid = MyVideoCapture(0)
 
 		self.udpServer = UDPServer(self.updateLeds,self.setColorCorrection,PORT=self.UDPport)
 		self.udpServer.start()
@@ -62,41 +74,46 @@ class MainWindow(tk.Frame):
 		self.led_rects = []
 		self.led_widgets = []
 
-		self.leds_h = 32
-		self.leds_v = 18
-		self.leds_s = 64
+		self.read_cfg()
 
-		for i in range(self.leds_h):
+		# top
+		led_w = int((self.win_width-2*self.leds_s) / self.leds_t)
+		for i in range(self.leds_t):
 			self.led_rects.append([
-				int(i*((self.win_width-self.leds_s)/self.leds_h)),
+				int(i*led_w)+self.leds_s,
 				0,
-				int((i+1)*((self.win_width-self.leds_s)/self.leds_h)),
+				int(i*led_w)+self.leds_s+led_w,
 				self.leds_s
 			])
 
-		for i in range(self.leds_v):
+		# right
+		led_h = int((self.win_height-2*self.leds_s) / self.leds_r)
+		for i in range(self.leds_r):
 			self.led_rects.append([
 				self.win_width-self.leds_s,
-				int(i*(self.win_height/self.leds_v)),
+				int(i*led_h)+self.leds_s,
 				self.win_width,
-				int((i+1)*(self.win_height/self.leds_v))
+				int(i*led_h)+self.leds_s+led_h
 			])
 
-
-		for i in reversed(range(self.leds_h)):
+		# bottom
+		led_w = int((self.win_width-2*self.leds_s) / self.leds_b)
+		for i in reversed(range(self.leds_b)):
 			self.led_rects.append([
-				int(i*((self.win_width-self.leds_s)/self.leds_h)),
+				int(i*led_w)+self.leds_s+led_w,
 				self.win_height-self.leds_s,
-				int((i+1)*((self.win_width-self.leds_s)/self.leds_h)),
+				int(i*led_w)+self.leds_s,
 				self.win_height
 			])
 
-		for i in reversed(range(self.leds_v)):
+		# left
+		led_h = int((self.win_height-2*self.leds_s) / self.leds_l)
+		for i in reversed(range(self.leds_l)):
 			self.led_rects.append([
 				0,
-				int(i*(self.win_height/self.leds_v)),
+				int(i*led_h)+self.leds_s,
 				self.leds_s,
-				int((i+1)*(self.win_height/self.leds_v))
+				int(i*led_h)+self.leds_s+led_h
 			])
 
 	# ------------------------------------------------------
@@ -123,6 +140,8 @@ class MainWindow(tk.Frame):
 		settingsmenu = tk.Menu(menubar, tearoff=0)
 		settingsmenu.add_command(label="switch led type",  accelerator="t", command=self.menu_switch_led_type)
 		settingsmenu.add_command(label="show/hide led IDs",  accelerator="n", command=self.menu_switch_led_ids)
+		#settingsmenu.add_command(label="led size +1", accelerator="+", command=self.menu_led_size_inc)
+		#settingsmenu.add_command(label="led size -1", accelerator="-", command=self.menu_led_size_dec)
 
 		menubar.add_cascade(label="File", menu=filemenu)
 		menubar.add_cascade(label="Settings", menu=settingsmenu)
@@ -131,6 +150,8 @@ class MainWindow(tk.Frame):
 		self.bind_all("<Control-q>", self.on_close)
 		self.bind_all("t", self.menu_switch_led_type)
 		self.bind_all("n", self.menu_switch_led_ids)
+		#self.bind_all("+", self.menu_led_size_inc)
+		#self.bind_all("-", self.menu_led_size_dec)
 
 		self.frameC = tk.Frame(master=self)
 		self.frameC.pack()
@@ -153,7 +174,10 @@ class MainWindow(tk.Frame):
 					self.led_widgets.append(self.canvas.create_rectangle(r[0], r[1], r[2], r[3], fill="black", outline="darkgray"))
 
 				if self.show_numbers:
-					self.canvas.create_text( int((r[0]+r[2])/2), int((r[1]+r[3])/2), font=("Purisa", 10), anchor=tk.CENTER, text=str(idx))
+					angle = 0
+					if (r[1] == 0 or r[3] == self.win_height):
+						angle = 90
+					self.canvas.create_text( int((r[0]+r[2])/2), int((r[1]+r[3])/2), font=("Purisa", 10), anchor=tk.CENTER, text=str(idx), angle=angle)
 
 	# ------------------------------------------------------
 	def on_close(self,event=None):
@@ -163,6 +187,15 @@ class MainWindow(tk.Frame):
 
 	# ------------------------------------------------------
 	def updateLeds(self, led_data):
+		#if self.show_video:
+		#	ret, frame = self.vid.get_frame()
+
+		#	if ret:
+		#		image = Image.fromarray(frame)
+		#		image = image.resize((self.win_width-2*self.leds_s, self.win_height-2*self.leds_s),0)
+		#		self.photo = ImageTk.PhotoImage(image)
+		#		self.canvas.create_image(self.leds_s, self.leds_s, image = self.photo, anchor = tk.NW)
+
 		self.led_data = led_data
 		color = lambda i,c:self.clut[c][ led_data[i][c] ]
 
@@ -170,6 +203,20 @@ class MainWindow(tk.Frame):
 			if idx < len(self.led_widgets):
 				if self.led_widgets[idx] is not None:
 					self.canvas.itemconfigure(self.led_widgets[idx], fill="#%02x%02x%02x" % (color(idx,0), color(idx,1), color(idx,2) ) )
+
+	# ------------------------------------------------------
+	def menu_led_size_dec(self,event=None):
+		self.leds_s = self.leds_s-1
+		self.resetVars()
+		self.resetUI()
+		print(self.leds_s)
+
+	# ------------------------------------------------------
+	def menu_led_size_inc(self,event=None):
+		self.leds_s = self.leds_s+1
+		self.resetVars()
+		self.resetUI()
+		print(self.leds_s)
 
 	# ------------------------------------------------------
 	def calculateCLUTs(self):
@@ -184,3 +231,29 @@ class MainWindow(tk.Frame):
 
 		self.calculateCLUTs()
 		self.updateLeds(self.led_data)
+
+	# ------------------------------------------------------
+	def read_cfg(self,cfg='ambi-tv-ledsim.conf'):
+		with codecs.open(cfg, 'r', encoding='utf-8', errors='ignore') as f:
+			data = f.readlines()
+			for line in data:
+				if "leds-top" in line:
+					line = ' '.join(line.split())
+					leds = line.split(' ')[1].split('-')
+					self.leds_t = abs(int(leds[0])-int(leds[1]))+1
+					print(self.leds_t)
+				if "leds-bottom" in line:
+					line = ' '.join(line.split())
+					leds = line.split(' ')[1].split('-')
+					self.leds_b = abs(int(leds[0])-int(leds[1]))+1
+					print(self.leds_b)
+				if "leds-left" in line:
+					line = ' '.join(line.split())
+					leds = line.split(' ')[1].split('-')
+					self.leds_l = abs(int(leds[0])-int(leds[1]))+1
+					print(self.leds_l)
+				if "leds-right" in line:
+					line = ' '.join(line.split())
+					leds = line.split(' ')[1].split('-')
+					self.leds_r = abs(int(leds[0])-int(leds[1]))+1
+					print(self.leds_r)
