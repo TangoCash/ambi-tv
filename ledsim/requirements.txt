@@ -1,0 +1,5 @@
+mss
+numpy
+opencv_python
+Pillow
+pyvirtualcam

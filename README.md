@@ -78,6 +78,8 @@ Zum Installieren mit Autostart führt man `'sudo make install'` aus. Nun wird am
    
 Die Kartenummer "0" und Subgerätenummer "0" merken wir uns, damit wir später die richtige Soundkarte benutzen können.
 
+Für den LED Simulator wird noch `'sudo apt-get install v4l2loopback-utils'` benötigt und die entsprechenden Abhängigkeiten für python, siehe requirements.txt
+
 Folgende Parameter akzeptiert ambi-tv beim Start:
 
 - `-b/--button-gpio [i]`: Gibt den GPIO-Pin an, an welchem der Taster angeschlossen ist. Geschah das wie oben beschrieben, wäre das die `3` bei einem Raspberry Rev. B  (die `1` bei Rev. A). Standardmäßig wird `-1` verwendet, was bedeutet, daß der Taster ignoriert wird.
