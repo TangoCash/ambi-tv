@@ -5,4 +5,4 @@ src/.settings/**
 bin/**
 *.o
 .DS_Store
-ambi-tv_test.conf
+*__pycache__*
