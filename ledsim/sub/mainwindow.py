@@ -7,9 +7,11 @@ import tkinter as tk
 import tkinter.messagebox as tkMessageBox
 import tkinter.filedialog as tkFileDialog
 
-from udpserver import *
-#from vidcap import *
-#from PIL import Image, ImageTk
+from PIL import Image, ImageTk
+
+from sub.udpserver import *
+from sub.VirtualWebcam import *
+from sub.AmbiConfigParser import *
 
 class StatusBar(tk.Frame):
 	def __init__(self, parent):
@@ -43,12 +45,14 @@ class MainWindow(tk.Frame):
 		self.leds_s = 64
 
 		self.show_numbers = True
-		#self.show_video = False
+		self.show_video = True
 		self.calculateCLUTs()
 		self.resetVars()
 		self.initUI()
-		#if self.show_video:
-		#	self.vid = MyVideoCapture(0)
+		if self.show_video:
+			self.vid = VirtualWebcam(device='/dev/video10', width=640, height=480, fps=30)
+			self.vid.start_stream(frame_source=0)
+			self.after(33, self.update_video)
 
 		self.udpServer = UDPServer(self.updateLeds,self.setColorCorrection,PORT=self.UDPport)
 		self.udpServer.start()
@@ -71,10 +75,22 @@ class MainWindow(tk.Frame):
 	def resetVars(self):
 		self.win_width = 1920
 		self.win_height = 1080
+		self.cap_width = 640
+		self.cap_height = 480
+		self.crop_left   = 15
+		self.crop_top    = 15
+		self.crop_right  = 15
+		self.crop_bottom = 15
+
 		self.led_rects = []
 		self.led_widgets = []
 
 		self.read_cfg()
+
+		self.x1 = int(self.win_width/self.cap_width*self.crop_left)
+		self.y1 = int(self.win_height/self.cap_height*self.crop_top)
+		self.x2 = self.win_width-2*self.leds_s - int(self.win_width/self.cap_width*self.crop_right)
+		self.y2 = self.win_height-2*self.leds_s - int(self.win_height/self.cap_height*self.crop_bottom)
 
 		# top
 		led_w = int((self.win_width-2*self.leds_s) / self.leds_t)
@@ -181,21 +197,27 @@ class MainWindow(tk.Frame):
 
 	# ------------------------------------------------------
 	def on_close(self,event=None):
+		if self.show_video:
+			self.vid.stop()
 		self.udpServer.stop()
 		self.udpServer.join()
 		self.parent.destroy()
 
+
+	# ------------------------------------------------------
+	def update_video(self):
+		if self.show_video:
+			ret, frame = self.vid.get_frame()
+
+			if ret:
+				image = Image.fromarray(frame)
+				image = image.resize((self.win_width-2*self.leds_s, self.win_height-2*self.leds_s),0)
+				self.photo = ImageTk.PhotoImage(image)
+				self.canvas.create_image(self.leds_s, self.leds_s, image = self.photo, anchor = tk.NW)
+				self.canvas.create_rectangle(self.leds_s + self.x1, self.leds_s + self.y1, self.leds_s + self.x2, self.leds_s + self.y2, outline="red")
+			self.after(33, self.update_video)
 	# ------------------------------------------------------
 	def updateLeds(self, led_data):
-		#if self.show_video:
-		#	ret, frame = self.vid.get_frame()
-
-		#	if ret:
-		#		image = Image.fromarray(frame)
-		#		image = image.resize((self.win_width-2*self.leds_s, self.win_height-2*self.leds_s),0)
-		#		self.photo = ImageTk.PhotoImage(image)
-		#		self.canvas.create_image(self.leds_s, self.leds_s, image = self.photo, anchor = tk.NW)
-
 		self.led_data = led_data
 		color = lambda i,c:self.clut[c][ led_data[i][c] ]
 
@@ -234,26 +256,28 @@ class MainWindow(tk.Frame):
 
 	# ------------------------------------------------------
 	def read_cfg(self,cfg='ambi-tv-ledsim.conf'):
-		with codecs.open(cfg, 'r', encoding='utf-8', errors='ignore') as f:
-			data = f.readlines()
-			for line in data:
-				if "leds-top" in line:
-					line = ' '.join(line.split())
-					leds = line.split(' ')[1].split('-')
-					self.leds_t = abs(int(leds[0])-int(leds[1]))+1
-					print(self.leds_t)
-				if "leds-bottom" in line:
-					line = ' '.join(line.split())
-					leds = line.split(' ')[1].split('-')
-					self.leds_b = abs(int(leds[0])-int(leds[1]))+1
-					print(self.leds_b)
-				if "leds-left" in line:
-					line = ' '.join(line.split())
-					leds = line.split(' ')[1].split('-')
-					self.leds_l = abs(int(leds[0])-int(leds[1]))+1
-					print(self.leds_l)
-				if "leds-right" in line:
-					line = ' '.join(line.split())
-					leds = line.split(' ')[1].split('-')
-					self.leds_r = abs(int(leds[0])-int(leds[1]))+1
-					print(self.leds_r)
+		self.config = AmbiConfigParser(cfg).get_config()
+
+		leds = self.config['udp_dnrgb-sink']['leds-top'].split('-')
+		self.leds_t = abs(int(leds[0])-int(leds[1]))+1
+		print(self.leds_t)
+
+		leds = self.config['udp_dnrgb-sink']['leds-bottom'].split('-')
+		self.leds_b = abs(int(leds[0])-int(leds[1]))+1
+		print(self.leds_b)
+
+		leds = self.config['udp_dnrgb-sink']['leds-left'].split('-')
+		self.leds_l = abs(int(leds[0])-int(leds[1]))+1
+		print(self.leds_l)
+
+		leds = self.config['udp_dnrgb-sink']['leds-right'].split('-')
+		self.leds_r = abs(int(leds[0])-int(leds[1]))+1
+		print(self.leds_r)
+
+		self.cap_width  = self.config['v4l2-grab-source']['video-width']
+		self.cap_height = self.config['v4l2-grab-source']['video-height']
+
+		self.crop_left   = self.config['v4l2-grab-source']['crop-left']
+		self.crop_top    = self.config['v4l2-grab-source']['crop-top']
+		self.crop_right  = self.config['v4l2-grab-source']['crop-right']
+		self.crop_bottom = self.config['v4l2-grab-source']['crop-bottom']

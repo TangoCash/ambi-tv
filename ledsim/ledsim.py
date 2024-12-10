@@ -3,12 +3,11 @@
 
 import signal, os
 import tkinter as tk
-from udpserver import *
-from mainwindow import *
+from sub.udpserver import *
+from sub.mainwindow import *
 
 def signal_handler(signum, frame):
 	exit(0)
-
 
 signal.signal(signal.SIGINT, signal_handler)
 root = tk.Tk()
