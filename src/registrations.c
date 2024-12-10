@@ -32,6 +32,7 @@
 #include "components/avg-color-processor.h"
 #include "components/edge-color-processor.h"
 #include "components/mood-light-processor.h"
+#include "components/udp_dnrgb-processor.h"
 #include "components/uart-sink.h"
 #include "components/udp_dnrgb-sink.h"
 #include "components/web-processor.h"
@@ -84,6 +85,10 @@ static struct ambitv_component_registration registrations[] =
 	{
 		.name             = "mood-light-processor",
 		.constructor      = (void *(*)(const char *, int, char **))ambitv_mood_light_processor_create
+	},
+	{
+		.name             = "udp_dnrgb-processor",
+		.constructor      = (void *(*)(const char *, int, char **))ambitv_udp_dnrgb_processor_create
 	},
 #if RPI_ENABLE
 	{
